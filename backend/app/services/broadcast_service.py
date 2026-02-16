@@ -48,56 +48,73 @@ class BroadcastService:
                 ])
 
             for bot_model in bots:
-                # We need an initialized bot instance. 
-                # Ideally get from BotManager or create temporary
                 try:
                     bot = Bot(token=bot_model.token)
                 except Exception as e:
                     logger.error(f"Invalid token for bot {bot_model.id}: {e}")
                     continue
 
-                # Get users for this bot
-                # Filter blocked users
-                users_stmt = select(BotUser).where(
-                    BotUser.source_bot_id == bot_model.id,
-                    BotUser.is_blocked == False
+                # Stream users to reduce memory usage
+                # We use a new transaction or the same session? 
+                # AsyncSession can stream.
+                
+                # We need to process in chunks to allow DB updates for progress
+                # Standard cursor execution
+                users_result = await db.stream(
+                    select(BotUser).where(
+                        BotUser.source_bot_id == bot_model.id,
+                        BotUser.is_blocked == False
+                    )
                 )
-                users = (await db.scalars(users_stmt)).all()
-
-                for user in users:
+                
+                async for user in users_result.scalars():
                     if broadcast.status == "cancelled":
-                         break
+                        break
 
                     try:
                         await self._send_message(bot, user.telegram_id, broadcast, markup)
                         total_sent += 1
-                        # Update stats in real-time or batch? 
-                        # Real-time is heavy db load. Batching is better.
-                        # For now, simplistic approach: update DB every N users or at end.
-                        # Spec says "real-time", let's update simple counters in DB
-                        # Optimization: increment defaults?
-                        # Let's just update periodically in memory and flush to DB
                     except TelegramForbiddenError:
                         user.is_blocked = True
                         db.add(user) # Mark as blocked
                         total_failed += 1
+                    except TelegramRetryAfter as e:
+                        logger.warning(f"Flood limit exceeded. Sleep {e.retry_after}")
+                        await asyncio.sleep(e.retry_after)
+                        # Retry once? Or skip? For simplicity, we skip or retry logic here
+                        # Let's try to resend once
+                        try:
+                            await self._send_message(bot, user.telegram_id, broadcast, markup)
+                            total_sent += 1
+                        except Exception:
+                            total_failed += 1
                     except Exception as e:
                         logger.error(f"Failed to send to {user.telegram_id}: {e}")
                         total_failed += 1
                     
-                    # Updates for simple progress tracking
-                    # We might want to persist these counts
-                    # To avoid DB lock, we'll update at end of bot loop or periodically
+                    # Periodic update every 10 users
+                    if (total_sent + total_failed) % 10 == 0:
+                        broadcast.sent_count = total_sent
+                        broadcast.failed_count = total_failed
+                        await db.commit()
+                        # Re-fetch broadcast to check status (if cancelled by user)
+                        await db.refresh(broadcast)
+                        if broadcast.status == "cancelled":
+                            break
                     
-                    await asyncio.sleep(0.05) # Rate limiting 20 msg/sec
+                    await asyncio.sleep(0.05) # Rate limiting
 
                 await bot.session.close()
+                if broadcast.status == "cancelled":
+                    break
             
             # Final update
             broadcast.sent_count = total_sent
             broadcast.failed_count = total_failed
-            broadcast.status = "completed" if broadcast.status != "cancelled" else "cancelled"
-            broadcast.completed_at = datetime.utcnow()
+            if broadcast.status != "cancelled":
+                broadcast.status = "completed"
+                broadcast.completed_at = datetime.utcnow()
+            
             await db.commit()
 
     async def _send_message(self, bot: Bot, chat_id: int, broadcast: Broadcast, markup):

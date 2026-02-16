@@ -7,6 +7,7 @@ from app.database import get_db
 from app.models.broadcast import Broadcast
 from app.schemas.broadcast import BroadcastCreate, BroadcastResponse
 from app.api.auth import get_current_user
+from app.services.broadcast_service import broadcast_service
 
 router = APIRouter(prefix="/broadcasts", tags=["broadcasts"])
 
@@ -69,7 +70,7 @@ async def start_broadcast(
     await db.commit()
     
     # Trigger background service here
-    # await broadcast_service.start_broadcast(id)
+    await broadcast_service.start_broadcast(id)
     
     return {"status": "started"}
 
