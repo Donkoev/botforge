@@ -12,10 +12,14 @@ export interface User {
 
 export const authApi = {
     login: async (username: string, password: string): Promise<Token> => {
-        const formData = new FormData();
+        const formData = new URLSearchParams();
         formData.append('username', username);
         formData.append('password', password);
-        const response = await api.post<Token>('/auth/login', formData);
+        const response = await api.post<Token>('/auth/login', formData, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
         return response.data;
     },
     getMe: async (): Promise<User> => {
