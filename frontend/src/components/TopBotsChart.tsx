@@ -24,7 +24,7 @@ const TopBotsChart: React.FC<TopBotsChartProps> = ({ bots, title = 'Активн
     // We will assume the parent passes data with counts. 
     // Let's adjust Props to take a generic data array for flexibility.
 
-    const data = bots.map((b, index) => ({
+    const data = bots.map((b) => ({
         name: b.name,
         users: Math.floor(Math.random() * 100) + 10, // Mock data for visualization
         active: b.is_active

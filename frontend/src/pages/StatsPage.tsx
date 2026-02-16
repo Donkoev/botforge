@@ -13,11 +13,9 @@ const StatsPage: React.FC = () => {
     const [overview, setOverview] = useState<StatsOverview | null>(null);
     const [dailyStats, setDailyStats] = useState<DailyStat[]>([]);
     const [bots, setBots] = useState<Bot[]>([]);
-    const [loading, setLoading] = useState(false);
     const [days, setDays] = useState(30);
 
     const fetchData = async () => {
-        setLoading(true);
         try {
             const [overviewData, dailyData, botsData] = await Promise.all([
                 statsApi.getOverview(),
@@ -30,8 +28,6 @@ const StatsPage: React.FC = () => {
         } catch (error) {
             console.error(error);
             message.error('Ошибка загрузки статистики');
-        } finally {
-            setLoading(false);
         }
     };
 

@@ -1,6 +1,5 @@
 // frontend/src/hooks/useAuth.ts
 import { useState, useEffect, useCallback } from 'react';
-import { authApi } from '../api/auth';
 import { jwtDecode } from 'jwt-decode';
 
 export const useAuth = () => {
