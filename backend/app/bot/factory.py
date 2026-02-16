@@ -12,7 +12,9 @@ def create_dispatcher() -> Dispatcher:
     dp = Dispatcher()
     
     # Register middlewares
-    dp.update.middleware(TrackingMiddleware())
+    # Use outer_middleware to run before filters
+    dp.message.outer_middleware(TrackingMiddleware())
+    dp.callback_query.outer_middleware(TrackingMiddleware())
     
     # Register routers
     dp.include_router(main_router)
