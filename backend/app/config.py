@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     # Redis
     REDIS_URL: str
 
+    # App
+    DOMAIN: str = "localhost"
+
+
     # Security
     JWT_SECRET: str
     ALGORITHM: str = "HS256"

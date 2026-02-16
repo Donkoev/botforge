@@ -84,6 +84,10 @@ else
     # Admin
     read -p "Admin Username [admin]: " ADMIN_USER
     ADMIN_USER=${ADMIN_USER:-admin}
+
+    read -p "Domain (or IP) [localhost]: " DOMAIN_NAME
+    DOMAIN_NAME=${DOMAIN_NAME:-localhost}
+
     
     read -p "Admin Password [admin]: " ADMIN_PASS
     ADMIN_PASS=${ADMIN_PASS:-admin}
@@ -103,6 +107,7 @@ DATABASE_URL=postgresql+asyncpg://postgres:${DB_PASSWORD}@postgres/botforge
 SECRET_KEY=${SECRET_KEY}
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
+DOMAIN=${DOMAIN_NAME}
 
 # Initial Admin
 FIRST_SUPERUSER=${ADMIN_USER}
