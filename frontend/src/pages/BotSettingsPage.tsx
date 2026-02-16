@@ -1,8 +1,7 @@
 // frontend/src/pages/BotSettingsPage.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { PageHeader } from '@ant-design/pro-layout'; // Optional, or build custom
-import { Button, Form, Input, Switch, Card, message, Typography, Breadcrumb, Spin } from 'antd';
+import { Button, Form, Input, Switch, Card, message, Typography, Spin } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { botsApi, Bot } from '../api/bots';
 import MessageEditor from '../components/MessageEditor';

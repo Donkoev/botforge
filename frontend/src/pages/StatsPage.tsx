@@ -1,15 +1,13 @@
 // frontend/src/pages/StatsPage.tsx
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Card, Statistic, Typography, Select, DatePicker, message } from 'antd';
+import { Row, Col, Card, Statistic, Typography, Select, message } from 'antd';
 import { UserOutlined, ClockCircleOutlined, RiseOutlined } from '@ant-design/icons';
 import StatsChart from '../components/StatsChart';
 import TopBotsChart from '../components/TopBotsChart';
 import { statsApi, StatsOverview, DailyStat } from '../api/stats';
 import { botsApi, Bot } from '../api/bots';
-import dayjs from 'dayjs';
 
 const { Title } = Typography;
-const { RangePicker } = DatePicker;
 
 const StatsPage: React.FC = () => {
     const [overview, setOverview] = useState<StatsOverview | null>(null);

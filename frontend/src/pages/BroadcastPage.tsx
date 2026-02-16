@@ -91,7 +91,7 @@ const BroadcastPage: React.FC = () => {
                 const percent = Math.round((record.sent_count + record.failed_count) / record.total_users * 100);
                 return (
                     <div style={{ width: 150 }}>
-                        <Progress percent={percent} size="small" status={record.status === 'failed' ? 'exception' : 'active'} />
+                        <Progress percent={percent} size="small" status={record.status === 'cancelled' ? 'exception' : 'active'} />
                         <div style={{ fontSize: 11, color: '#888' }}>
                             {record.sent_count} sent / {record.failed_count} failed
                         </div>

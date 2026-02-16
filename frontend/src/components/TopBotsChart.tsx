@@ -48,8 +48,8 @@ const TopBotsChart: React.FC<TopBotsChartProps> = ({ bots, title = 'Активн
                             cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
                         />
                         <Bar dataKey="users" fill="#8884d8" radius={[0, 4, 4, 0]}>
-                            {data.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.active ? '#52c41a' : '#ff4d4f'} />
+                            {data.map((entry) => (
+                                <Cell key={`cell-${entry.name}`} fill={entry.active ? '#52c41a' : '#ff4d4f'} />
                             ))}
                         </Bar>
                     </BarChart>

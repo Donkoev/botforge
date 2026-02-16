@@ -1,6 +1,6 @@
 // frontend/src/components/BroadcastForm.tsx
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Button, Select, Space, message, Card, Steps } from 'antd';
+import { Form, Input, Button, Select, Space, message, Card } from 'antd';
 import { MinusCircleOutlined, PlusOutlined, SendOutlined, SaveOutlined } from '@ant-design/icons';
 import { botsApi, Bot } from '../api/bots';
 import { broadcastApi } from '../api/broadcast';

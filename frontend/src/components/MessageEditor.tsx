@@ -1,6 +1,6 @@
 // frontend/src/components/MessageEditor.tsx
 import React, { useEffect, useState } from 'react';
-import { Tabs, Form, Input, Button, Card, Space, message, List, Popconfirm } from 'antd';
+import { Tabs, Form, Input, Button, Card, Space, message, Popconfirm } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { botsApi, MessageTemplate } from '../api/bots';
 
