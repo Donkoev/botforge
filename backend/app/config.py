@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str
 
     # Redis
-    REDIS_URL: str
+    REDIS_URL: str = "redis://redis:6379/0"
 
     # App
     DOMAIN: str = "localhost"
