@@ -1,0 +1,22 @@
+/* frontend/src/index.css */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #141414; /* Match AntD dark theme bg */
+}
+
+/* Scrollbar styling for webkit */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #1f1f1f; 
+}
+::-webkit-scrollbar-thumb {
+  background: #3a3a3a; 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}

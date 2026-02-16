@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: botforge_backend
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - botforge_net
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: botforge_frontend
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - botforge_net
+
+  postgres:
+    image: postgres:16
+    container_name: botforge_postgres
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - botforge_net
+
+  redis:
+    image: redis:7
+    container_name: botforge_redis
+    restart: always
+    networks:
+      - botforge_net
+
+  nginx:
+    build:
+      context: ./nginx
+    container_name: botforge_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - botforge_net
+
+volumes:
+  postgres_data:
+
+networks:
+  botforge_net:
+    driver: bridge
