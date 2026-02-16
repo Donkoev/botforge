@@ -8,7 +8,7 @@ from app.models.bot import Bot
 from app.schemas.bot import BotCreate, BotUpdate, BotResponse
 from app.api.auth import get_current_user
 # services import will be added later when implemented
-# from app.services.bot_manager import bot_manager
+from app.services.bot_manager import bot_manager
 
 router = APIRouter(prefix="/bots", tags=["bots"])
 
@@ -35,17 +35,22 @@ async def create_bot(
     # self.bot = Bot(token=token); await self.bot.get_me() ...
 
     # Placeholder for get_me logic:
-    bot_username = "unknown_bot" # Should be fetched from Telegram
-    # For now, we'll assume the user provides valid tokens and we fetching info later or mock it.
-    # Let's mock the username or require it? Schema doesn't require it in Create, but Model does.
-    # Let's just use a placeholder text or parse from token if possible (not possible).
-    # We will assume the service layer handles validation properly later.
-    # For now, let's put a placeholder.
-    
+    # Fetch bot info from Telegram
+    try:
+        from aiogram import Bot as AiogramBot
+        # Use a temporary bot instance to check token and get info
+        # We don't use default properties here as we just need get_me
+        temp_bot = AiogramBot(token=bot_in.token)
+        bot_info = await temp_bot.get_me()
+        bot_username = bot_info.username
+        await temp_bot.session.close()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid token or Telegram API error: {e}")
+
     new_bot = Bot(
         name=bot_in.name,
         token=bot_in.token,
-        bot_username=bot_username # This needs to be real
+        bot_username=bot_username
     )
     db.add(new_bot)
     await db.commit()
@@ -116,6 +121,7 @@ async def start_bot_endpoint(
     bot.is_active = True
     await db.commit()
     # bot_manager.start_bot(id)
+    await bot_manager.start_bot(id)
     return {"status": "started"}
 
 @router.post("/{id}/stop")
@@ -132,5 +138,5 @@ async def stop_bot_endpoint(
     
     bot.is_active = False
     await db.commit()
-    # bot_manager.stop_bot(id)
+    await bot_manager.stop_bot(id)
     return {"status": "stopped"}
