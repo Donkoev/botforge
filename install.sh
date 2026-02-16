@@ -2,98 +2,167 @@
 
 # BotForge Installation Script
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
+# Colors and Formatting
+RED='\033[1;31m'
+GREEN='\033[1;32m'
+BLUE='\033[1;34m'
+CYAN='\033[1;36m'
 YELLOW='\033[1;33m'
+U_WHITE='\033[4;37m'
 NC='\033[0m' # No Color
+BOLD='\033[1m'
+DIM='\033[2m'
 
-echo -e "${GREEN}
-  ____        _     _____                      
- |  _ \      | |   |  ___|__  _ __ __ _  ___ 
- | |_) |  _  | |   | |_ / _ \| '__/ _\` |/ _ \\
- |  _ <  | |_| |   |  _| (_) | | | (_| |  __/
- |_| \_\  \___/    |_|  \___/|_|  \__, |\___|
-                                  |___/      
-${NC}"
-echo -e "${GREEN}Welcome to BotForge Installer!${NC}"
-echo "-----------------------------------"
+# Helpers
+print_banner() {
+    clear
+    echo -e "${BLUE}${BOLD}"
+    echo "  ____        _     _____                      "
+    echo " |  _ \      | |   |  ___|__  _ __ __ _  ___   "
+    echo " | |_) |  _  | |   | |_ / _ \| '__/ _\` |/ _ \\  "
+    echo " |  _ <  | |_| |   |  _| (_) | | | (_| |  __/  "
+    echo " | |_) | | | | |   | |  \__, | | | (_| | |     "
+    echo " |____/  |_| |_|   |_|  |___/|_|  \__, |_|     "
+    echo "                                  |___/        "
+    echo -e "${NC}"
+    echo -e "${CYAN}  :: Telegram Bot Control Panel :: v1.0.0${NC}"
+    echo -e "${DIM}  https://github.com/Donkoev/botforge${NC}"
+    echo ""
+    echo "--------------------------------------------------------"
+    echo ""
+}
 
-# Check if running as root
+print_step() {
+    echo -e "${BLUE}${BOLD}==>${NC} ${BOLD}$1${NC}"
+}
+
+print_success() {
+    echo -e "${GREEN}✔ $1${NC}"
+}
+
+print_error() {
+    echo -e "${RED}✖ $1${NC}"
+}
+
+print_info() {
+    echo -e "${CYAN}ℹ $1${NC}"
+}
+
+check_cmd() {
+    if command -v "$1" &> /dev/null; then
+        print_success "$1 is installed"
+        return 0
+    else
+        print_error "$1 is missing"
+        return 1
+    fi
+}
+
+spinner() {
+    local pid=$1
+    local delay=0.1
+    local spinstr='|/-\'
+    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+    printf "    \b\b\b\b"
+}
+
+# Main Execution
+print_banner
+
+# 1. Check Root
 if [ "$EUID" -ne 0 ]; then
-  echo -e "${YELLOW}Warning: It is recommended to run this script as root or with sudo if you encounter permission issues.${NC}"
+  print_info "Running as non-root user. You might need sudo for some steps."
 fi
 
-# 1. Check dependencies
-echo -e "${YELLOW}[1/5] Checking dependencies...${NC}"
+# 2. Check Dependencies
+print_step "Checking System Dependencies..."
 
-if ! command -v git &> /dev/null; then
-    echo -e "${RED}Git is not installed. Installing...${NC}"
+if ! check_cmd git; then
+    print_info "Installing Git..."
     if command -v apt-get &> /dev/null; then
-        apt-get update && apt-get install -y git
+        apt-get update -qq && apt-get install -y -qq git
     elif command -v yum &> /dev/null; then
-        yum install -y git
+        yum install -y -q git
     else
-        echo -e "${RED}Cannot install git automatically. Please install git manually.${NC}"
+        print_error "Cannot install git automatically. Please install git manually."
         exit 1
     fi
+    check_cmd git
 fi
 
-if ! command -v docker &> /dev/null; then
-    echo -e "${YELLOW}Docker is not installed. Would you like to install it? (y/n)${NC}"
-    read -r install_docker
+if ! check_cmd docker; then
+    echo -e "\n${YELLOW}Docker is required but not installed.${NC}"
+    read -p "  Do you want to install Docker automatically? (y/n): " install_docker
     if [[ "$install_docker" =~ ^[Yy]$ ]]; then
-        curl -fsSL https://get.docker.com | sh
+        print_info "Installing Docker (this may take a while)..."
+        curl -fsSL https://get.docker.com | sh > /dev/null 2>&1 &
+        spinner $!
+        
         systemctl start docker
         systemctl enable docker
+        print_success "Docker installed successfully"
     else
-        echo -e "${RED}Docker is required. Exiting.${NC}"
+        print_error "Docker is required to proceed. Exiting."
         exit 1
     fi
 fi
 
-# 2. Clone Repository
-echo -e "${YELLOW}[2/5] Downloading BotForge...${NC}"
+echo ""
+
+# 3. Clone/Update Repository
 INSTALL_DIR="botforge"
 
 if [ -d "$INSTALL_DIR" ]; then
-    echo -e "${YELLOW}Directory $INSTALL_DIR already exists. Updating...${NC}"
+    print_step "Updating Repository..."
     cd "$INSTALL_DIR" || exit
-    git pull origin main
+    git pull origin main > /dev/null 2>&1
+    print_success "Repository updated"
 else
-    git clone https://github.com/Donkoev/botforge.git "$INSTALL_DIR"
+    print_step "Cloning Repository..."
+    git clone https://github.com/Donkoev/botforge.git "$INSTALL_DIR" > /dev/null 2>&1
     cd "$INSTALL_DIR" || exit
+    print_success "Repository cloned into ./$INSTALL_DIR"
 fi
 
-# 3. Setup Configuration
-echo -e "${YELLOW}[3/5] Configuring Environment...${NC}"
+echo ""
+
+# 4. Configuration
+print_step "Configuration"
 
 if [ -f .env ]; then
-    echo -e "${YELLOW}.env file already exists. Skipping configuration.${NC}"
-else
-    echo "Please configure your BotForge instance:"
+    print_info ".env file detected. "
+    read -p "  Do you want to overwrite it? (y/n) [n]: " overwrite
+    if [[ ! "$overwrite" =~ ^[Yy]$ ]]; then
+        print_success "Using existing configuration"
+        SKIP_CONFIG=1
+    fi
+fi
+
+if [ -z "$SKIP_CONFIG" ]; then
+    echo -e "${DIM}Press Enter to use defaults [in brackets]${NC}"
+    echo ""
     
-    # Postgres
-    read -p "Database Password [random]: " DB_PASSWORD
-    DB_PASSWORD=${DB_PASSWORD:-$(openssl rand -hex 12)}
-    
-    # Secrets
-    read -p "Secret Key (for JWT) [random]: " SECRET_KEY
-    SECRET_KEY=${SECRET_KEY:-$(openssl rand -hex 32)}
-    
-    # Admin
-    read -p "Admin Username [admin]: " ADMIN_USER
+    # Input with defaults
+    read -p "  Domain or IP [localhost]: " DOMAIN
+    DOMAIN=${DOMAIN:-localhost}
+
+    read -p "  Admin Username [admin]: " ADMIN_USER
     ADMIN_USER=${ADMIN_USER:-admin}
-
-    read -p "Domain (or IP) [localhost]: " DOMAIN_NAME
-    DOMAIN_NAME=${DOMAIN_NAME:-localhost}
-
     
-    read -p "Admin Password [admin]: " ADMIN_PASS
+    read -p "  Admin Password [admin]: " ADMIN_PASS
     ADMIN_PASS=${ADMIN_PASS:-admin}
+
+    # Generate secrets
+    DB_PASSWORD=$(openssl rand -hex 12)
+    SECRET_KEY=$(openssl rand -hex 32)
     
-    echo -e "${GREEN}Generating .env file...${NC}"
-    
+    # Write .env
     cat > .env <<EOL
 # Generated by install.sh
 
@@ -107,7 +176,9 @@ DATABASE_URL=postgresql+asyncpg://postgres:${DB_PASSWORD}@postgres/botforge
 SECRET_KEY=${SECRET_KEY}
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
-DOMAIN=${DOMAIN_NAME}
+
+# App
+DOMAIN=${DOMAIN}
 
 # Initial Admin
 FIRST_SUPERUSER=${ADMIN_USER}
@@ -116,18 +187,33 @@ FIRST_SUPERUSER_PASSWORD=${ADMIN_PASS}
 # Nginx
 NGINX_PORT=80
 EOL
+    print_success "Configuration saved to .env"
 fi
 
-# 4. Build and Start
-echo -e "${YELLOW}[4/5] Starting Services...${NC}"
-docker compose up -d --build
+echo ""
 
-# 5. Finish
-echo -e "${GREEN}
------------------------------------
-BotForge installed successfully!
------------------------------------
-${NC}"
-echo -e "Frontend: http://localhost (or your server IP)"
-echo -e "Admin:    ${ADMIN_USER} / ${ADMIN_PASS}"
-echo -e "Exiting..."
+# 5. Build and Start
+print_step "Deployment"
+print_info "Building and starting containers... (this takes a moment)"
+
+docker compose up -d --build > /dev/null 2>&1 &
+spinner $!
+
+if [ $? -eq 0 ]; then
+    print_success "Container deployment successful!"
+else
+    print_error "Stubmlen upon an issue during deployment. Check 'docker compose logs'."
+    exit 1
+fi
+
+echo ""
+echo "--------------------------------------------------------"
+echo -e "${GREEN}${BOLD}             Installation Complete!             ${NC}"
+echo "--------------------------------------------------------"
+echo ""
+echo -e "  ${BOLD}URL:${NC}      http://${DOMAIN}"
+echo -e "  ${BOLD}Check:${NC}    docker compose ps"
+echo ""
+echo -e "  ${BOLD}Admin:${NC}    ${ADMIN_USER}"
+echo -e "  ${BOLD}Password:${NC} ${ADMIN_PASS}"
+echo ""
