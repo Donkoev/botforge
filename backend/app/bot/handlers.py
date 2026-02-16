@@ -10,7 +10,7 @@ from app.models.message_template import MessageTemplate
 router = Router()
 
 @router.message(CommandStart())
-async def cmd_start(message: Message, bot_user: dict):
+async def cmd_start(message: Message):
     # bot_user is injected by TrackingMiddleware
     # or we can just use message.from_user
     
