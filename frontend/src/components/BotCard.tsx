@@ -77,7 +77,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loadin
                 title={
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ fontSize: 16, fontWeight: 600 }}>{bot.name}</span>
-                        <Tag color={bot.is_active ? 'success' : 'default'} style={{ margin: 0 }}>
+                        <Tag color={bot.is_active ? 'success' : 'default'} style={{ margin: 0, marginLeft: 12 }}>
                             {bot.is_active ? 'Активен' : 'Остановлен'}
                         </Tag>
                     </div>

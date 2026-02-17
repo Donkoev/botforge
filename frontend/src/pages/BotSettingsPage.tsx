@@ -102,7 +102,8 @@ const BotSettingsPage: React.FC = () => {
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 40, marginTop: 30 }}>
+                            <div style={{ marginBottom: 8, display: 'block' }}>Статус бота</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 40 }}>
                                 <Form.Item name="is_active" valuePropName="checked" noStyle>
                                     <Switch />
                                 </Form.Item>
