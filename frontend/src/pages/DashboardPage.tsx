@@ -1,6 +1,6 @@
 // frontend/src/pages/DashboardPage.tsx
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Card, Statistic, Table, Typography, message } from 'antd';
+import { Row, Col, Card, Statistic, Table, Typography, message, Tag } from 'antd';
 import { UserOutlined, ArrowUpOutlined, RobotOutlined, UserAddOutlined } from '@ant-design/icons';
 import StatsChart from '../components/StatsChart';
 import { statsApi, StatsOverview, DailyStat } from '../api/stats';
@@ -8,7 +8,7 @@ import { usersApi, BotUser } from '../api/users';
 import { botsApi, Bot } from '../api/bots';
 import { formatDate } from '../utils/helpers';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const DashboardPage: React.FC = () => {
     const [overview, setOverview] = useState<StatsOverview | null>(null);
@@ -44,57 +44,61 @@ const DashboardPage: React.FC = () => {
     }, []);
 
     const topBotsColumns = [
-        { title: 'Бот', dataIndex: 'name', key: 'name' },
-        { title: 'Статус', dataIndex: 'is_active', key: 'is_active', render: (active: boolean) => active ? <span style={{ color: '#52c41a' }}>Active</span> : <span style={{ color: '#ff4d4f' }}>Stopped</span> },
+        { title: 'Бот', dataIndex: 'name', key: 'name', render: (text: string) => <strong style={{ color: '#fff' }}>{text}</strong> },
+        { title: 'Статус', dataIndex: 'is_active', key: 'is_active', render: (active: boolean) => active ? <Tag color="success">Active</Tag> : <Tag color="error">Stopped</Tag> },
     ];
 
     const recentUsersColumns = [
-        { title: 'ID', dataIndex: 'telegram_id', key: 'telegram_id' },
-        { title: 'Username', dataIndex: 'username', key: 'username', render: (u: string) => u ? `@${u}` : '-' },
+        { title: 'ID', dataIndex: 'telegram_id', key: 'telegram_id', render: (id: number) => <Text style={{ color: '#a0a0a0' }}>{id}</Text> },
+        { title: 'Username', dataIndex: 'username', key: 'username', render: (u: string) => u ? <span style={{ color: '#818cf8' }}>@{u}</span> : '-' },
         { title: 'Дата', dataIndex: 'first_seen_at', key: 'first_seen_at', render: (d: string) => formatDate(d) },
     ];
 
     return (
         <div>
-            <Title level={2}>Обзор</Title>
+            <div style={{ marginBottom: 24 }}>
+                <Title level={2} style={{ margin: 0, fontWeight: 700 }}>Обзор</Title>
+                <Text style={{ color: 'rgba(255, 255, 255, 0.5)' }}>Статистика и метрики за последнее время</Text>
+            </div>
 
             <Row gutter={[16, 16]}>
                 <Col xs={24} sm={12} md={6}>
-                    <Card bordered={false}>
+                    <Card bordered={false} className="glass-card">
                         <Statistic
-                            title="Всего пользователей"
+                            title={<span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Всего пользователей</span>}
                             value={overview?.total_users}
-                            prefix={<UserOutlined />}
-                            valueStyle={{ color: '#3f8600' }}
+                            prefix={<UserOutlined style={{ color: '#4ade80' }} />}
+                            valueStyle={{ color: '#fff', fontWeight: 600 }}
                         />
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} md={6}>
-                    <Card bordered={false}>
+                    <Card bordered={false} className="glass-card">
                         <Statistic
-                            title="Новых сегодня"
+                            title={<span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Новых сегодня</span>}
                             value={overview?.new_today}
-                            prefix={<ArrowUpOutlined />}
-                            valueStyle={{ color: '#cf1322' }}
+                            prefix={<ArrowUpOutlined style={{ color: '#f87171' }} />}
+                            valueStyle={{ color: '#fff', fontWeight: 600 }}
                         />
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} md={6}>
-                    <Card bordered={false}>
+                    <Card bordered={false} className="glass-card">
                         <Statistic
-                            title="Новых за неделю"
+                            title={<span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Новых за неделю</span>}
                             value={overview?.new_week}
-                            prefix={<UserAddOutlined />}
+                            prefix={<UserAddOutlined style={{ color: '#c084fc' }} />}
+                            valueStyle={{ color: '#fff', fontWeight: 600 }}
                         />
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} md={6}>
-                    <Card bordered={false}>
+                    <Card bordered={false} className="glass-card">
                         <Statistic
-                            title="Активных ботов"
+                            title={<span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Активных ботов</span>}
                             value={overview?.active_bots}
-                            prefix={<RobotOutlined />}
-                            valueStyle={{ color: '#1890ff' }}
+                            prefix={<RobotOutlined style={{ color: '#60a5fa' }} />}
+                            valueStyle={{ color: '#fff', fontWeight: 600 }}
                         />
                     </Card>
                 </Col>
@@ -102,13 +106,15 @@ const DashboardPage: React.FC = () => {
 
             <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
                 <Col span={24}>
-                    <StatsChart data={dailyStats} />
+                    <Card className="glass-card" bordered={false} bodyStyle={{ padding: 24 }}>
+                        <StatsChart data={dailyStats} />
+                    </Card>
                 </Col>
             </Row>
 
             <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
                 <Col xs={24} md={12}>
-                    <Card title="Последние пользователи" bordered={false}>
+                    <Card title={<span style={{ color: '#fff' }}>Последние пользователи</span>} bordered={false} className="glass-card">
                         <Table
                             dataSource={recentUsers}
                             columns={recentUsersColumns}
@@ -120,7 +126,7 @@ const DashboardPage: React.FC = () => {
                     </Card>
                 </Col>
                 <Col xs={24} md={12}>
-                    <Card title="Активные боты" bordered={false}>
+                    <Card title={<span style={{ color: '#fff' }}>Активные боты</span>} bordered={false} className="glass-card">
                         <Table
                             dataSource={activeBots.slice(0, 5)}
                             columns={topBotsColumns}
