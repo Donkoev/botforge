@@ -29,18 +29,7 @@ const LoginPage: React.FC = () => {
     };
 
     return (
-        <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '100vh',
-            backgroundImage: `
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.3) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.3) 0px, transparent 50%),
-                linear-gradient(to bottom right, #0f0f13, #1a1a20)
-            `,
-            backgroundAttachment: 'fixed'
-        }}>
+        <div className="login-page-bg">
             <Card
                 className="glass-card"
                 bordered={false}
@@ -48,7 +37,6 @@ const LoginPage: React.FC = () => {
                     width: 420,
                     padding: 24,
                     boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-                    background: 'rgba(30, 30, 35, 0.6)'
                 }}
             >
                 <div style={{ textAlign: 'center', marginBottom: 32 }}>
@@ -108,11 +96,8 @@ const LoginPage: React.FC = () => {
                             style={{
                                 height: 48,
                                 fontSize: 16,
-                                fontWeight: 600,
-                                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                                border: 'none',
-                                boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.4)'
                             }}
+                            className="btn-gradient"
                         >
                             Войти
                         </Button>

@@ -91,11 +91,7 @@ const BotsPage: React.FC = () => {
                     icon={<PlusOutlined />}
                     onClick={() => setIsModalOpen(true)}
                     size="large"
-                    style={{
-                        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                        border: 'none',
-                        boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.3)'
-                    }}
+                    className="btn-gradient"
                 >
                     Добавить бота
                 </Button>
