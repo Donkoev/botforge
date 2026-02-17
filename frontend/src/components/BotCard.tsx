@@ -61,35 +61,34 @@ const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loadin
                 </Popconfirm>
             ]}
         >
-            <Card.Meta
-                avatar={
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
                     <div style={{
                         background: 'rgba(24, 144, 255, 0.1)',
                         padding: 12,
                         borderRadius: 12,
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        flexShrink: 0
                     }}>
-                        <RobotOutlined style={{ fontSize: 28, color: '#1890ff' }} />
+                        <RobotOutlined style={{ fontSize: 24, color: '#1890ff' }} />
                     </div>
-                }
-                title={
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                        <span style={{ fontSize: 16, fontWeight: 600, marginRight: 8, wordBreak: 'break-word', lineHeight: '1.2' }}>{bot.name}</span>
-                        <Tag color={bot.is_active ? 'success' : 'default'} style={{ margin: 0, flexShrink: 0 }}>
-                            {bot.is_active ? 'Активен' : 'Остановлен'}
-                        </Tag>
-                    </div>
-                }
-                description={
-                    <div style={{ marginTop: 8 }}>
-                        <Text type="secondary" copyable={{ text: bot.token }} style={{ fontSize: 13 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                            <span style={{ fontSize: 16, fontWeight: 600, wordBreak: 'break-word', lineHeight: '1.4', paddingRight: 8 }}>
+                                {bot.name}
+                            </span>
+                            <Tag color={bot.is_active ? 'success' : 'default'} style={{ margin: 0, flexShrink: 0 }}>
+                                {bot.is_active ? 'Активен' : 'Остановлен'}
+                            </Tag>
+                        </div>
+                        <Text type="secondary" copyable={{ text: bot.token }} style={{ fontSize: 13, display: 'block' }}>
                             @{bot.bot_username}
                         </Text>
                     </div>
-                }
-            />
+                </div>
+            </div>
         </Card>
     );
 };

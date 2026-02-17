@@ -128,30 +128,34 @@ h6 {
 }
 
 /* Tables */
+.ant-table-wrapper {
+  background: transparent !important;
+  font-family: 'Inter', sans-serif;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  /* Outer border */
+}
+
 .ant-table {
   background: transparent !important;
   color: var(--text-secondary);
-  font-family: 'Inter', sans-serif;
 }
 
 .ant-table-container {
-  border-radius: 12px 12px 0 0 !important;
-  /* Rounded top corners */
-  overflow: hidden;
-  /* Clip header background */
+  border-radius: 12px !important;
 }
 
 .ant-table-thead>tr>th {
-  background: rgba(255, 255, 255, 0.05) !important;
-  /* Slightly lighter header */
-  color: rgba(255, 255, 255, 0.9) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  font-weight: 500 !important;
+  background: rgba(99, 102, 241, 0.1) !important;
+  /* Visible primary tint header */
+  color: #fff !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  font-weight: 600 !important;
   text-transform: uppercase;
   font-size: 12px;
   letter-spacing: 0.05em;
   padding: 16px 24px !important;
-  /* More padding */
 }
 
 /* Rounded corners for first and last header cells */
@@ -164,17 +168,15 @@ h6 {
 }
 
 .ant-table-tbody>tr>td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
-  /* Very subtle divider */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
   color: var(--text-main) !important;
   padding: 16px 24px !important;
-  /* Match header padding */
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .ant-table-tbody>tr.ant-table-row:hover>td {
-  background: rgba(99, 102, 241, 0.08) !important;
-  /* Primary color hint on hover */
+  background: rgba(99, 102, 241, 0.15) !important;
+  /* Stronger hover effect */
 }
 
 /* Remove side borders if any */
