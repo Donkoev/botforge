@@ -25,7 +25,7 @@ const BotSettingsPage: React.FC = () => {
                 setBot(found);
                 form.setFieldsValue({
                     name: found.name,
-                    is_active: found.is_active
+                    is_active: Boolean(found.is_active)
                 });
             } else {
                 message.error('Бот не найден');

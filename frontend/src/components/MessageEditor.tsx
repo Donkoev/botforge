@@ -24,10 +24,8 @@ const MessageEditor: React.FC<MessageEditorProps> = ({ botId }) => {
             const data = await botsApi.getTemplates(botId);
             setTemplates(data);
 
-            // If active lang not in templates (and templates not empty), switch to first
-            if (data.length > 0 && !data.find(t => t.language_code === activeLang)) {
-                setActiveLang(data[0].language_code);
-            }
+            setTemplates(data);
+            // Removed auto-switch logic to allow creating new languages without reset
         } catch (error) {
             message.error('Ошибка загрузки шаблонов');
         } finally {

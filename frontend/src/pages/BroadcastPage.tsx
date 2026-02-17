@@ -83,7 +83,13 @@ const BroadcastPage: React.FC = () => {
                 if (status === 'sending') color = 'processing';
                 if (status === 'completed') color = 'success';
                 if (status === 'cancelled') color = 'error';
-                return <Tag color={color}>{status.toUpperCase()}</Tag>;
+                const statusMap: Record<string, string> = {
+                    draft: 'Черновик',
+                    sending: 'Отправка',
+                    completed: 'Завершен',
+                    cancelled: 'Отменен'
+                };
+                return <Tag color={color}>{statusMap[status] || status.toUpperCase()}</Tag>;
             }
         },
         {
