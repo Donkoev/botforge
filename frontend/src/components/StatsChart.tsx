@@ -61,6 +61,7 @@ const StatsChart: React.FC<StatsChartProps> = ({ data, title = 'Новые по�
                         <Area
                             type="monotone"
                             dataKey="count"
+                            name="Количество"
                             stroke="#6366f1"
                             strokeWidth={3}
                             fillOpacity={1}

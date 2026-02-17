@@ -14,9 +14,10 @@ interface UserTableProps {
         total: number;
     };
     onChange: (pagination: any) => void;
+    bots: import('../api/bots').Bot[];
 }
 
-const UserTable: React.FC<UserTableProps> = ({ users, loading, pagination, onChange }) => {
+const UserTable: React.FC<UserTableProps> = ({ users, loading, pagination, onChange, bots }) => {
     const columns: ColumnsType<BotUser> = [
         {
             title: 'ID',
@@ -44,8 +45,10 @@ const UserTable: React.FC<UserTableProps> = ({ users, loading, pagination, onCha
             title: 'Источник',
             dataIndex: 'source_bot_id',
             key: 'source_bot_id',
-            // In real app, we might want to map ID to Bot Name here or fetch bot details
-            render: (id) => <Tag color="processing" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', border: 'none' }}>Bot #{id}</Tag>,
+            render: (id) => {
+                const botName = bots.find(b => b.id === id)?.name || `Bot #${id}`;
+                return <Tag color="processing" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', border: 'none' }}>{botName}</Tag>;
+            },
         },
         {
             title: 'Статус',
