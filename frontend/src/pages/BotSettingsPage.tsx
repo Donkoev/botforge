@@ -8,6 +8,11 @@ import MessageEditor from '../components/MessageEditor';
 
 const { Title } = Typography;
 
+const StatusLabel = ({ form }: { form: any }) => {
+    const isActive = Form.useWatch('is_active', form);
+    return <span style={{ color: 'rgba(255,255,255,0.7)' }}>{isActive ? 'Активен' : 'Остановлен'}</span>;
+};
+
 const BotSettingsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>(); // string
     const navigate = useNavigate();
@@ -107,7 +112,7 @@ const BotSettingsPage: React.FC = () => {
                                 <Form.Item name="is_active" valuePropName="checked" noStyle>
                                     <Switch />
                                 </Form.Item>
-                                <span style={{ color: 'rgba(255,255,255,0.7)' }}>{bot.is_active ? 'Активен' : 'Остановлен'}</span>
+                                <StatusLabel form={form} />
                             </div>
                         </Col>
                     </Row>
