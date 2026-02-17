@@ -19,9 +19,6 @@ const { Header, Sider, Content } = Layout;
 
 const AppLayout: React.FC = () => {
     const [collapsed, setCollapsed] = useState(false);
-    const {
-        token: { colorBgContainer },
-    } = theme.useToken();
     const navigate = useNavigate();
     const location = useLocation();
     const { logout } = useAuth();
