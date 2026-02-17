@@ -102,12 +102,12 @@ const BotSettingsPage: React.FC = () => {
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
-                            <Form.Item name="is_active" label="Статус бота" valuePropName="checked">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 40 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 40, marginTop: 30 }}>
+                                <Form.Item name="is_active" valuePropName="checked" noStyle>
                                     <Switch />
-                                    <span style={{ color: 'rgba(255,255,255,0.7)' }}>{bot.is_active ? 'Активен' : 'Остановлен'}</span>
-                                </div>
-                            </Form.Item>
+                                </Form.Item>
+                                <span style={{ color: 'rgba(255,255,255,0.7)' }}>{bot.is_active ? 'Активен' : 'Остановлен'}</span>
+                            </div>
                         </Col>
                     </Row>
 
