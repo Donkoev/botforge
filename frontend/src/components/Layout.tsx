@@ -1,6 +1,6 @@
 // frontend/src/components/Layout.tsx
 import React, { useState } from 'react';
-import { Layout, Menu, Button, theme, Avatar, Dropdown } from 'antd';
+import { Layout, Menu, Button, Avatar, Dropdown } from 'antd';
 import {
     DashboardOutlined,
     RobotOutlined,
