@@ -75,7 +75,7 @@ const AppLayout: React.FC = () => {
     };
 
     return (
-    return (
+
         <Layout style={{ minHeight: '100vh', background: 'transparent' }}>
             <Sider
                 trigger={null}
