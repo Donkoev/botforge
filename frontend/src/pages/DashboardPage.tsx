@@ -45,12 +45,12 @@ const DashboardPage: React.FC = () => {
 
     const topBotsColumns = [
         { title: 'Бот', dataIndex: 'name', key: 'name', render: (text: string) => <strong style={{ color: '#fff' }}>{text}</strong> },
-        { title: 'Статус', dataIndex: 'is_active', key: 'is_active', render: (active: boolean) => active ? <Tag color="success">Active</Tag> : <Tag color="error">Stopped</Tag> },
+        { title: 'Статус', dataIndex: 'is_active', key: 'is_active', render: (active: boolean) => active ? <Tag color="success">Активен</Tag> : <Tag color="error">Остановлен</Tag> },
     ];
 
     const recentUsersColumns = [
         { title: 'ID', dataIndex: 'telegram_id', key: 'telegram_id', render: (id: number) => <Text style={{ color: '#a0a0a0' }}>{id}</Text> },
-        { title: 'Username', dataIndex: 'username', key: 'username', render: (u: string) => u ? <span style={{ color: '#818cf8' }}>@{u}</span> : '-' },
+        { title: 'Имя пользователя', dataIndex: 'username', key: 'username', render: (u: string) => u ? <span style={{ color: '#818cf8' }}>@{u}</span> : '-' },
         { title: 'Дата', dataIndex: 'first_seen_at', key: 'first_seen_at', render: (d: string) => formatDate(d) },
     ];
 

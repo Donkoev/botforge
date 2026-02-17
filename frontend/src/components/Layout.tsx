@@ -164,7 +164,7 @@ const AppLayout: React.FC = () => {
                                 icon={<UserIcon />}
                                 style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
                             />
-                            <span style={{ color: 'white', fontWeight: 500, fontFamily: "'Outfit', sans-serif" }}>Admin</span>
+                            <span style={{ color: 'white', fontWeight: 500, fontFamily: "'Outfit', sans-serif" }}>Администратор</span>
                         </div>
                     </Dropdown>
                 </Header>

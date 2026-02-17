@@ -70,7 +70,7 @@ const LoginPage: React.FC = () => {
                     >
                         <Input
                             prefix={<UserOutlined style={{ color: 'rgba(255,255,255,0.4)' }} />}
-                            placeholder="Username"
+                            placeholder="Имя пользователя"
                             style={{ height: 48 }}
                         />
                     </Form.Item>
@@ -82,7 +82,7 @@ const LoginPage: React.FC = () => {
                     >
                         <Input.Password
                             prefix={<LockOutlined style={{ color: 'rgba(255,255,255,0.4)' }} />}
-                            placeholder="Password"
+                            placeholder="Пароль"
                             style={{ height: 48 }}
                         />
                     </Form.Item>

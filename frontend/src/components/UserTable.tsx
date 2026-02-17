@@ -51,7 +51,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, loading, pagination, onCha
             title: 'Статус',
             dataIndex: 'is_blocked',
             key: 'is_blocked',
-            render: (blocked) => blocked ? <Tag color="error">Blocked</Tag> : <Tag color="success">Active</Tag>
+            render: (blocked) => blocked ? <Tag color="error">Заблокирован</Tag> : <Tag color="success">Активен</Tag>
         },
         {
             title: 'Первый визит',
