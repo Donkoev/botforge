@@ -107,7 +107,7 @@ const BotsPage: React.FC = () => {
             ) : (
                 <Row gutter={[24, 24]}>
                     {bots.map(bot => (
-                        <Col key={bot.id} xs={24} sm={12} md={8} lg={6} xl={6}>
+                        <Col key={bot.id} xs={24} sm={12} md={12} lg={8} xl={6}>
                             <BotCard
                                 bot={bot}
                                 onToggleStatus={handleToggleStatus}
