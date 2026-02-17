@@ -116,6 +116,7 @@ const AppLayout: React.FC = () => {
             <Layout style={{ background: 'transparent' }}>
                 <Header style={{
                     padding: '0 24px',
+                    height: 80, // Match Sidebar logo height
                     background: 'rgba(30, 30, 35, 0.6)',
                     backdropFilter: 'blur(12px)',
                     margin: '12px 12px 0 0',
@@ -130,10 +131,16 @@ const AppLayout: React.FC = () => {
                         icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                         onClick={() => setCollapsed(!collapsed)}
                         style={{
-                            fontSize: '16px',
-                            width: 48,
-                            height: 48,
-                            color: '#fff'
+                            fontSize: '18px',
+                            width: 44,
+                            height: 44,
+                            color: '#fff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            borderRadius: 12,
+                            border: '1px solid rgba(255, 255, 255, 0.05)'
                         }}
                     />
                     <Dropdown menu={userMenu} placement="bottomRight">
