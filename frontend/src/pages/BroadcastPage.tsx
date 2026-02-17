@@ -35,11 +35,10 @@ const BroadcastPage: React.FC = () => {
     }, [fetchBroadcasts]);
 
     useEffect(() => {
-        let interval: NodeJS.Timeout;
         if (hasSending) {
-            interval = setInterval(fetchBroadcasts, 5000);
+            const interval = setInterval(fetchBroadcasts, 5000);
+            return () => clearInterval(interval);
         }
-        return () => clearInterval(interval);
     }, [hasSending, fetchBroadcasts]);
 
     const handleStart = async (id: number) => {
