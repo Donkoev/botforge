@@ -44,7 +44,7 @@ const StatsPage: React.FC = () => {
                 </div>
                 <Select
                     defaultValue={30}
-                    style={{ width: 180 }}
+                    style={{ width: 220 }}
                     onChange={val => setDays(val)}
                     size="large"
                 >

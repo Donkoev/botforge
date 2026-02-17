@@ -46,10 +46,24 @@ const BotSettingsPage: React.FC = () => {
     const handleSaveSettings = async (values: any) => {
         if (!bot) return;
         try {
-            await botsApi.update(bot.id, values);
+            // 1. Update general settings (name)
+            if (values.name !== bot.name) {
+                await botsApi.update(bot.id, { name: values.name });
+            }
+
+            // 2. Handle status change specifically via start/stop endpoints
+            if (values.is_active !== bot.is_active) {
+                if (values.is_active) {
+                    await botsApi.start(bot.id);
+                } else {
+                    await botsApi.stop(bot.id);
+                }
+            }
+
             message.success('Настройки сохранены');
-            fetchBot(); // Refresh
+            fetchBot(); // Refresh to get latest state
         } catch (error) {
+            console.error(error);
             message.error('Ошибка сохранения');
         }
     };

@@ -64,11 +64,22 @@ const AppLayout: React.FC = () => {
         items: [
             {
                 key: 'logout',
-                label: 'Выйти',
+                label: <span style={{ fontFamily: "'Outfit', sans-serif" }}>Выйти</span>,
                 icon: <LogoutOutlined />,
                 onClick: handleLogout,
+                style: {
+                    color: '#ff4d4f', // Red for logout
+                    fontFamily: "'Outfit', sans-serif"
+                }
             },
         ],
+        style: {
+            backgroundColor: 'rgba(30, 30, 35, 0.9)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: 12,
+            padding: 4
+        }
     };
 
     return (
