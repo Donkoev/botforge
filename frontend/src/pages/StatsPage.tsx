@@ -82,7 +82,7 @@ const StatsPage: React.FC = () => {
                             title="Рост за неделю"
                             value={overview?.new_week}
                             prefix={<RiseOutlined style={{ color: '#8b5cf6', fontSize: 20 }} />}
-                            suffix={<span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginLeft: 8 }}>users</span>}
+                            suffix={<span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginLeft: 8 }}>польз.</span>}
                             valueStyle={{ fontWeight: 600, fontSize: 28 }}
                         />
                     </Card>

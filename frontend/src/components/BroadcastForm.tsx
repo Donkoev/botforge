@@ -109,9 +109,9 @@ const BroadcastForm: React.FC<BroadcastFormProps> = ({ onSuccess, onCancel }) =>
                                     <Form.Item
                                         {...restField}
                                         name={[name, 'url']}
-                                        rules={[{ required: true, message: 'URL' }]}
+                                        rules={[{ required: true, message: 'Ссылка' }]}
                                     >
-                                        <Input placeholder="URL" />
+                                        <Input placeholder="Ссылка" />
                                     </Form.Item>
                                     <MinusCircleOutlined onClick={() => remove(name)} />
                                 </Space>

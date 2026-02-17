@@ -6,9 +6,12 @@ import { ConfigProvider, theme } from 'antd'
 import 'antd/dist/reset.css'
 import './index.css' // We will create this for global overrides if needed
 
+import ruRU from 'antd/locale/ru_RU';
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
         <ConfigProvider
+            locale={ruRU}
             theme={{
                 algorithm: theme.darkAlgorithm,
                 token: {
