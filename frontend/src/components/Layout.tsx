@@ -72,8 +72,7 @@ const AppLayout: React.FC = () => {
     };
 
     return (
-
-        <Layout style={{ minHeight: '100vh', background: 'transparent' }}>
+        <Layout style={{ minHeight: '100vh' }}>
             <Sider
                 trigger={null}
                 collapsible
@@ -83,8 +82,7 @@ const AppLayout: React.FC = () => {
                 style={{
                     margin: 12,
                     borderRadius: 16,
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    background: 'rgba(30, 30, 35, 0.6)'
+                    border: 'none',
                 }}
             >
                 <div style={{
@@ -93,16 +91,33 @@ const AppLayout: React.FC = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 12,
-                    color: 'white',
-                    fontSize: 20,
-                    fontWeight: 700,
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                    marginBottom: 16
+                    marginBottom: 16,
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
                 }}>
-                    <div style={{ width: 32, height: 32, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <RobotOutlined style={{ fontSize: 18 }} />
+                    <div style={{
+                        width: 36,
+                        height: 36,
+                        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                        borderRadius: 10,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)'
+                    }}>
+                        <RobotOutlined style={{ fontSize: 20, color: 'white' }} />
                     </div>
-                    {!collapsed && <span style={{ background: 'linear-gradient(to right, #fff, #a5b4fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>BotForge</span>}
+                    {!collapsed && (
+                        <span style={{
+                            background: 'linear-gradient(to right, #fff, #a5b4fc)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            fontSize: 20,
+                            fontWeight: 700,
+                            fontFamily: "'Outfit', sans-serif"
+                        }}>
+                            BotForge
+                        </span>
+                    )}
                 </div>
                 <Menu
                     theme="dark"
@@ -110,21 +125,16 @@ const AppLayout: React.FC = () => {
                     selectedKeys={[location.pathname]}
                     items={menuItems}
                     onClick={handleMenuClick}
-                    style={{ background: 'transparent', border: 'none' }}
                 />
             </Sider>
-            <Layout style={{ background: 'transparent' }}>
+            <Layout>
                 <Header style={{
                     padding: '0 24px',
-                    height: 80, // Match Sidebar logo height
-                    background: 'rgba(30, 30, 35, 0.6)',
-                    backdropFilter: 'blur(12px)',
-                    margin: '12px 12px 0 0',
-                    borderRadius: 16,
+                    height: 80,
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    border: '1px solid rgba(255, 255, 255, 0.08)'
+                    background: 'transparent'
                 }}>
                     <Button
                         type="text"
@@ -135,28 +145,34 @@ const AppLayout: React.FC = () => {
                             width: 44,
                             height: 44,
                             color: '#fff',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
                             background: 'rgba(255, 255, 255, 0.05)',
                             borderRadius: 12,
-                            border: '1px solid rgba(255, 255, 255, 0.05)'
                         }}
                     />
                     <Dropdown menu={userMenu} placement="bottomRight">
-                        <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, padding: '4px 12px', borderRadius: 20, background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                            <Avatar icon={<UserIcon />} style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }} />
-                            <span style={{ color: 'white', fontWeight: 500 }}>Admin</span>
+                        <div className="glass-card" style={{
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 12,
+                            padding: '6px 16px',
+                            borderRadius: 30,
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            background: 'rgba(30, 30, 35, 0.4)'
+                        }}>
+                            <Avatar
+                                icon={<UserIcon />}
+                                style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
+                            />
+                            <span style={{ color: 'white', fontWeight: 500, fontFamily: "'Outfit', sans-serif" }}>Admin</span>
                         </div>
                     </Dropdown>
                 </Header>
                 <Content
                     style={{
-                        margin: '12px 12px 12px 0',
+                        margin: '0 24px 24px 24px',
                         padding: 0,
                         minHeight: 280,
-                        background: 'transparent',
-                        borderRadius: 16,
                         overflow: 'initial'
                     }}
                 >

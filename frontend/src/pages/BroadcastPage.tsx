@@ -14,7 +14,7 @@ const BroadcastPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
 
-    const fetchBroadcasts = async () => {
+    const fetchBroadcasts = React.useCallback(async () => {
         setLoading(true);
         try {
             const data = await broadcastApi.getAll();
@@ -26,17 +26,21 @@ const BroadcastPage: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    const hasSending = broadcasts.some(b => b.status === 'sending');
 
     useEffect(() => {
         fetchBroadcasts();
-        // Optional: Polling if any broadcast is 'sending'
-        const interval = setInterval(() => {
-            const hasActive = broadcasts.some(b => b.status === 'sending');
-            if (hasActive) fetchBroadcasts();
-        }, 5000);
+    }, [fetchBroadcasts]);
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (hasSending) {
+            interval = setInterval(fetchBroadcasts, 5000);
+        }
         return () => clearInterval(interval);
-    }, [broadcasts.some(b => b.status === 'sending')]);
+    }, [hasSending, fetchBroadcasts]);
 
     const handleStart = async (id: number) => {
         try {
@@ -141,20 +145,34 @@ const BroadcastPage: React.FC = () => {
 
     return (
         <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                <Title level={2} style={{ margin: 0 }}>Рассылки</Title>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreating(true)}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
+                <div>
+                    <Title level={2} style={{ margin: 0, fontSize: 28 }}>Рассылки</Title>
+                    <Typography.Text type="secondary">Управление массовыми рассылками</Typography.Text>
+                </div>
+                <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={() => setIsCreating(true)}
+                    size="large"
+                    style={{
+                        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                        border: 'none',
+                        boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.3)'
+                    }}
+                >
                     Создать рассылку
                 </Button>
             </div>
 
-            <Card bordered={false}>
+            <Card bordered={false} className="glass-card">
                 <Table
                     columns={columns}
                     dataSource={broadcasts}
                     rowKey="id"
                     loading={loading}
                     pagination={{ pageSize: 10 }}
+                    size="middle"
                 />
             </Card>
         </div>

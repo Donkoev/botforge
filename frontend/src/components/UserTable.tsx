@@ -38,14 +38,14 @@ const UserTable: React.FC<UserTableProps> = ({ users, loading, pagination, onCha
             title: 'Язык',
             dataIndex: 'language_code',
             key: 'language_code',
-            render: (code) => code ? <Tag>{code.toUpperCase()}</Tag> : '-'
+            render: (code) => code ? <Tag color="default" style={{ background: 'rgba(255,255,255,0.05)', border: 'none' }}>{code.toUpperCase()}</Tag> : '-'
         },
         {
             title: 'Источник',
             dataIndex: 'source_bot_id',
             key: 'source_bot_id',
             // In real app, we might want to map ID to Bot Name here or fetch bot details
-            render: (id) => <Tag color="blue">Bot #{id}</Tag>,
+            render: (id) => <Tag color="processing" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', border: 'none' }}>Bot #{id}</Tag>,
         },
         {
             title: 'Статус',
@@ -57,7 +57,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, loading, pagination, onCha
             title: 'Первый визит',
             dataIndex: 'first_seen_at',
             key: 'first_seen_at',
-            render: (d) => formatDate(d),
+            render: (d) => <span style={{ color: 'rgba(255,255,255,0.6)' }}>{formatDate(d)}</span>,
         },
         {
             title: 'Последний визит',

@@ -59,7 +59,7 @@ const BroadcastForm: React.FC<BroadcastFormProps> = ({ onSuccess, onCancel }) =>
     };
 
     return (
-        <Card title="Новая рассылка">
+        <Card title="Новая рассылка" className="glass-card" bordered={false}>
             <Form
                 form={form}
                 layout="vertical"

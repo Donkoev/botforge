@@ -56,83 +56,93 @@ const DashboardPage: React.FC = () => {
 
     return (
         <div>
-            <div style={{ marginBottom: 24 }}>
-                <Title level={2} style={{ margin: 0, fontWeight: 700 }}>Обзор</Title>
-                <Text style={{ color: 'rgba(255, 255, 255, 0.5)' }}>Статистика и метрики за последнее время</Text>
+            <div style={{ marginBottom: 32 }}>
+                <Title level={2} style={{ margin: 0, fontSize: 28 }}>Обзор</Title>
+                <Text type="secondary">Статистика и метрики за последнее время</Text>
             </div>
 
-            <Row gutter={[16, 16]}>
+            <Row gutter={[24, 24]}>
                 <Col xs={24} sm={12} md={6}>
                     <Card bordered={false} className="glass-card">
                         <Statistic
-                            title={<span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Всего пользователей</span>}
+                            title="Всего пользователей"
                             value={overview?.total_users}
-                            prefix={<UserOutlined style={{ color: '#4ade80' }} />}
-                            valueStyle={{ color: '#fff', fontWeight: 600 }}
+                            prefix={<UserOutlined style={{ color: '#4ade80', fontSize: 20 }} />}
+                            valueStyle={{ fontWeight: 600, fontSize: 28 }}
                         />
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} md={6}>
                     <Card bordered={false} className="glass-card">
                         <Statistic
-                            title={<span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Новых сегодня</span>}
+                            title="Новых сегодня"
                             value={overview?.new_today}
-                            prefix={<ArrowUpOutlined style={{ color: '#f87171' }} />}
-                            valueStyle={{ color: '#fff', fontWeight: 600 }}
+                            prefix={<ArrowUpOutlined style={{ color: '#f87171', fontSize: 20 }} />}
+                            valueStyle={{ fontWeight: 600, fontSize: 28 }}
                         />
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} md={6}>
                     <Card bordered={false} className="glass-card">
                         <Statistic
-                            title={<span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Новых за неделю</span>}
+                            title="Новых за неделю"
                             value={overview?.new_week}
-                            prefix={<UserAddOutlined style={{ color: '#c084fc' }} />}
-                            valueStyle={{ color: '#fff', fontWeight: 600 }}
+                            prefix={<UserAddOutlined style={{ color: '#c084fc', fontSize: 20 }} />}
+                            valueStyle={{ fontWeight: 600, fontSize: 28 }}
                         />
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} md={6}>
                     <Card bordered={false} className="glass-card">
                         <Statistic
-                            title={<span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Активных ботов</span>}
+                            title="Активных ботов"
                             value={overview?.active_bots}
-                            prefix={<RobotOutlined style={{ color: '#60a5fa' }} />}
-                            valueStyle={{ color: '#fff', fontWeight: 600 }}
+                            prefix={<RobotOutlined style={{ color: '#60a5fa', fontSize: 20 }} />}
+                            valueStyle={{ fontWeight: 600, fontSize: 28 }}
                         />
                     </Card>
                 </Col>
             </Row>
 
-            <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+            <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
                 <Col span={24}>
-                    <Card className="glass-card" bordered={false} bodyStyle={{ padding: 24 }}>
+                    <div style={{ height: 400 }}>
                         <StatsChart data={dailyStats} />
-                    </Card>
+                    </div>
                 </Col>
             </Row>
 
-            <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+            <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
                 <Col xs={24} md={12}>
-                    <Card title={<span style={{ color: '#fff' }}>Последние пользователи</span>} bordered={false} className="glass-card">
+                    <Card
+                        title="Последние пользователи"
+                        bordered={false}
+                        className="glass-card"
+                        headStyle={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                    >
                         <Table
                             dataSource={recentUsers}
                             columns={recentUsersColumns}
                             rowKey="id"
                             pagination={false}
-                            size="small"
+                            size="middle"
                             loading={loading}
                         />
                     </Card>
                 </Col>
                 <Col xs={24} md={12}>
-                    <Card title={<span style={{ color: '#fff' }}>Активные боты</span>} bordered={false} className="glass-card">
+                    <Card
+                        title="Активные боты"
+                        bordered={false}
+                        className="glass-card"
+                        headStyle={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                    >
                         <Table
                             dataSource={activeBots.slice(0, 5)}
                             columns={topBotsColumns}
                             rowKey="id"
                             pagination={false}
-                            size="small"
+                            size="middle"
                             loading={loading}
                         />
                     </Card>

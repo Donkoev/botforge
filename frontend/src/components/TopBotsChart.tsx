@@ -1,7 +1,7 @@
 // frontend/src/components/TopBotsChart.tsx
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { Card, Typography } from 'antd';
+import { Typography } from 'antd';
 import { Bot } from '../api/bots';
 
 const { Title } = Typography;
@@ -31,8 +31,8 @@ const TopBotsChart: React.FC<TopBotsChartProps> = ({ bots, title = 'Активн
     }));
 
     return (
-        <Card bordered={false} style={{ height: '100%' }}>
-            <Title level={4}>{title}</Title>
+        <div style={{ height: '100%' }}>
+            <Title level={4} style={{ marginBottom: 24 }}>{title}</Title>
             <div style={{ width: '100%', height: 300 }}>
                 <ResponsiveContainer>
                     <BarChart
@@ -40,22 +40,29 @@ const TopBotsChart: React.FC<TopBotsChartProps> = ({ bots, title = 'Активн
                         layout="vertical"
                         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     >
-                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#333" />
-                        <XAxis type="number" stroke="#888" />
-                        <YAxis dataKey="name" type="category" width={100} stroke="#888" />
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(255,255,255,0.1)" />
+                        <XAxis type="number" stroke="rgba(255,255,255,0.5)" tickLine={false} axisLine={false} />
+                        <YAxis dataKey="name" type="category" width={100} stroke="rgba(255,255,255,0.8)" tickLine={false} axisLine={false} />
                         <Tooltip
-                            contentStyle={{ backgroundColor: '#1f1f1f', border: 'none' }}
-                            cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
+                            contentStyle={{
+                                backgroundColor: 'rgba(30, 30, 35, 0.8)',
+                                backdropFilter: 'blur(10px)',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: 8,
+                                color: '#fff'
+                            }}
+                            cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+                            labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
                         />
-                        <Bar dataKey="users" fill="#8884d8" radius={[0, 4, 4, 0]}>
-                            {data.map((entry) => (
-                                <Cell key={`cell-${entry.name}`} fill={entry.active ? '#52c41a' : '#ff4d4f'} />
+                        <Bar dataKey="users" fill="#8b5cf6" radius={[0, 4, 4, 0]}>
+                            {data.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.active ? '#10b981' : '#ef4444'} fillOpacity={0.8} />
                             ))}
                         </Bar>
                     </BarChart>
                 </ResponsiveContainer>
             </div>
-        </Card>
+        </div>
     );
 };
 

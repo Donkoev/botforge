@@ -5,7 +5,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import BotCard from '../components/BotCard';
 import { botsApi, Bot } from '../api/bots';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const BotsPage: React.FC = () => {
     const [bots, setBots] = useState<Bot[]>([]);
@@ -81,21 +81,37 @@ const BotsPage: React.FC = () => {
 
     return (
         <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                <Title level={2} style={{ margin: 0 }}>Боты</Title>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalOpen(true)}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
+                <div>
+                    <Title level={2} style={{ margin: 0, fontSize: 28 }}>Боты</Title>
+                    <Text type="secondary">Управление вашими Telegram ботами</Text>
+                </div>
+                <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={() => setIsModalOpen(true)}
+                    size="large"
+                    style={{
+                        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                        border: 'none',
+                        boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.3)'
+                    }}
+                >
                     Добавить бота
                 </Button>
             </div>
 
             {loading ? (
-                <div style={{ textAlign: 'center', padding: 50 }}><Spin size="large" /></div>
+                <div style={{ textAlign: 'center', padding: 100 }}><Spin size="large" /></div>
             ) : bots.length === 0 ? (
-                <Empty description="Нет ботов. Добавьте первого!" />
+                <Empty
+                    description={<span style={{ color: 'rgba(255,255,255,0.5)' }}>Нет ботов. Добавьте первого!</span>}
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                />
             ) : (
-                <Row gutter={[16, 16]}>
+                <Row gutter={[24, 24]}>
                     {bots.map(bot => (
-                        <Col key={bot.id} xs={24} sm={12} md={8} lg={6}>
+                        <Col key={bot.id} xs={24} sm={12} md={8} lg={6} xl={6}>
                             <BotCard
                                 bot={bot}
                                 onToggleStatus={handleToggleStatus}
@@ -111,30 +127,32 @@ const BotsPage: React.FC = () => {
                 open={isModalOpen}
                 onCancel={() => setIsModalOpen(false)}
                 footer={null}
+                centered
             >
                 <Form
                     form={form}
                     layout="vertical"
                     onFinish={handleCreate}
+                    style={{ marginTop: 24 }}
                 >
                     <Form.Item
                         name="name"
                         label="Название (для панели)"
                         rules={[{ required: true, message: 'Введите название' }]}
                     >
-                        <Input placeholder="Мой бот" />
+                        <Input placeholder="Мой бот" size="large" />
                     </Form.Item>
                     <Form.Item
                         name="token"
                         label="Токен бота (от BotFather)"
                         rules={[{ required: true, message: 'Введите токен' }]}
                     >
-                        <Input.Password placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" />
+                        <Input.Password placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" size="large" />
                     </Form.Item>
-                    <Form.Item>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                            <Button onClick={() => setIsModalOpen(false)}>Отмена</Button>
-                            <Button type="primary" htmlType="submit" loading={actionLoading}>
+                    <Form.Item style={{ marginBottom: 0 }}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+                            <Button onClick={() => setIsModalOpen(false)} size="large">Отмена</Button>
+                            <Button type="primary" htmlType="submit" loading={actionLoading} size="large">
                                 Добавить
                             </Button>
                         </div>

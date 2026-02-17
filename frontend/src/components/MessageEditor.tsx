@@ -18,7 +18,7 @@ const MessageEditor: React.FC<MessageEditorProps> = ({ botId }) => {
     const [newLangMode, setNewLangMode] = useState(false);
     const [newLangCode, setNewLangCode] = useState('');
 
-    const fetchTemplates = async () => {
+    const fetchTemplates = React.useCallback(async () => {
         try {
             setLoading(true);
             const data = await botsApi.getTemplates(botId);
@@ -33,11 +33,11 @@ const MessageEditor: React.FC<MessageEditorProps> = ({ botId }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [botId, activeLang]);
 
     useEffect(() => {
         fetchTemplates();
-    }, [botId]);
+    }, [fetchTemplates]);
 
     // Update form when active lang changes
     useEffect(() => {
@@ -120,7 +120,7 @@ const MessageEditor: React.FC<MessageEditorProps> = ({ botId }) => {
     }
 
     return (
-        <Card title="Приветственное сообщение" bordered={false}>
+        <Card title="Приветственное сообщение" bordered={false} className="glass-card">
             <Space style={{ marginBottom: 16 }}>
                 {newLangMode ? (
                     <Space.Compact>

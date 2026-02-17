@@ -34,7 +34,7 @@ const UsersPage: React.FC = () => {
         }
     }
 
-    const fetchUsers = async () => {
+    const fetchUsers = React.useCallback(async () => {
         setLoading(true);
         try {
             const data = await usersApi.getAll({
@@ -51,7 +51,7 @@ const UsersPage: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [pagination, searchText, selectedBotId]);
 
     useEffect(() => {
         fetchBots();
@@ -59,7 +59,7 @@ const UsersPage: React.FC = () => {
 
     useEffect(() => {
         fetchUsers();
-    }, [pagination.current, pagination.pageSize, selectedBotId]);
+    }, [fetchUsers]);
     // Should we fetch on searchText change? Or on Enter/Search click?
     // Let's do fetch on specific action or debounce. For now, manual trigger or effect dependency.
     // Adding searchText to dependency might cause many requests. Let's use a search button or 'onSearch' prop of Input.Search
@@ -75,17 +75,22 @@ const UsersPage: React.FC = () => {
 
     return (
         <div>
-            <Title level={2}>Пользователи</Title>
+            <div style={{ marginBottom: 32 }}>
+                <Title level={2} style={{ margin: 0, fontSize: 28 }}>Пользователи</Title>
+                <Typography.Text type="secondary">База пользователей всех ваших ботов</Typography.Text>
+            </div>
 
-            <Card bordered={false} style={{ marginBottom: 24 }}>
+            <Card bordered={false} className="glass-card" style={{ marginBottom: 24, padding: 8 }}>
                 <Row gutter={[16, 16]} align="middle">
                     <Col xs={24} sm={8} md={6}>
                         <Input
                             placeholder="Поиск по username/имени"
-                            prefix={<SearchOutlined />}
+                            prefix={<SearchOutlined style={{ color: 'rgba(255,255,255,0.4)' }} />}
                             value={searchText}
                             onChange={e => setSearchText(e.target.value)}
                             onPressEnter={handleSearch}
+                            size="large"
+                            allowClear
                         />
                     </Col>
                     <Col xs={24} sm={8} md={6}>
@@ -98,6 +103,7 @@ const UsersPage: React.FC = () => {
                                 setSelectedBotId(val);
                                 setPagination({ ...pagination, current: 1 });
                             }}
+                            size="large"
                         >
                             {bots.map(bot => (
                                 <Option key={bot.id} value={bot.id}>{bot.name}</Option>
@@ -106,14 +112,14 @@ const UsersPage: React.FC = () => {
                     </Col>
                     <Col xs={24} sm={8} md={6}>
                         <Space>
-                            <Button type="primary" onClick={handleSearch}>Найти</Button>
-                            <Button icon={<ReloadOutlined />} onClick={fetchUsers}>Обновить</Button>
+                            <Button type="primary" onClick={handleSearch} size="large" icon={<SearchOutlined />}>Найти</Button>
+                            <Button icon={<ReloadOutlined />} onClick={fetchUsers} size="large"></Button>
                         </Space>
                     </Col>
                 </Row>
             </Card>
 
-            <Card bordered={false}>
+            <Card bordered={false} className="glass-card">
                 <UserTable
                     users={users}
                     loading={loading}

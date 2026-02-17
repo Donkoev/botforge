@@ -1,7 +1,7 @@
 // frontend/src/pages/BotSettingsPage.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button, Form, Input, Switch, Card, message, Typography, Spin } from 'antd';
+import { Button, Form, Input, Switch, Card, message, Typography, Spin, Row, Col } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { botsApi, Bot } from '../api/bots';
 import MessageEditor from '../components/MessageEditor';
@@ -15,7 +15,7 @@ const BotSettingsPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [form] = Form.useForm();
 
-    const fetchBot = async () => {
+    const fetchBot = React.useCallback(async () => {
         if (!id) return;
         try {
             setLoading(true);
@@ -37,11 +37,11 @@ const BotSettingsPage: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id, navigate, form]);
 
     useEffect(() => {
         fetchBot();
-    }, [id]);
+    }, [fetchBot]);
 
     const handleSaveSettings = async (values: any) => {
         if (!bot) return;
@@ -59,27 +59,58 @@ const BotSettingsPage: React.FC = () => {
 
     return (
         <div>
-            <div style={{ marginBottom: 16 }}>
-                <Button type="text" icon={<ArrowLeftOutlined />} onClick={() => navigate('/bots')}>
+            <div style={{ marginBottom: 24 }}>
+                <Button
+                    type="text"
+                    icon={<ArrowLeftOutlined />}
+                    onClick={() => navigate('/bots')}
+                    style={{ marginBottom: 16, paddingLeft: 0, color: 'rgba(255,255,255,0.7)' }}
+                >
                     Назад к списку
                 </Button>
+                <div>
+                    <Title level={2} style={{ margin: 0, fontSize: 28 }}>Настройки: {bot.name}</Title>
+                    <Typography.Text type="secondary">Управление параметрами бота</Typography.Text>
+                </div>
             </div>
 
-            <Title level={2}>Настройки: {bot.name}</Title>
-
-            <Card title="Основное" bordered={false} style={{ marginBottom: 24 }}>
+            <Card className="glass-card" bordered={false} style={{ marginBottom: 24, padding: 8 }}>
+                <Title level={4} style={{ marginBottom: 24, paddingLeft: 8 }}>Основное</Title>
                 <Form
                     form={form}
                     layout="vertical"
                     onFinish={handleSaveSettings}
                 >
-                    <Form.Item name="name" label="Имя бота" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name="is_active" label="Активен" valuePropName="checked">
-                        <Switch />
-                    </Form.Item>
-                    <Button type="primary" htmlType="submit">Сохранить основное</Button>
+                    <Row gutter={[24, 24]}>
+                        <Col xs={24} md={12}>
+                            <Form.Item name="name" label="Имя бота" rules={[{ required: true }]}>
+                                <Input size="large" />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={12}>
+                            <Form.Item name="is_active" label="Статус бота" valuePropName="checked">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 40 }}>
+                                    <Switch />
+                                    <span style={{ color: 'rgba(255,255,255,0.7)' }}>{bot.is_active ? 'Активен' : 'Остановлен'}</span>
+                                </div>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            size="large"
+                            style={{
+                                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                                border: 'none',
+                                boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.3)'
+                            }}
+                        >
+                            Сохранить изменения
+                        </Button>
+                    </div>
                 </Form>
             </Card>
 

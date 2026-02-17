@@ -12,12 +12,14 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             theme={{
                 algorithm: theme.darkAlgorithm,
                 token: {
-                    colorPrimary: '#6366f1', // Violet/Indigo
-                    colorBgContainer: '#1f1f1f',
+                    colorPrimary: '#6366f1',
+                    colorBgContainer: 'transparent', // Let CSS handle backgrounds
                     colorBgElevated: '#1f1f1f',
                     borderRadius: 12,
                     fontFamily: "'Inter', sans-serif",
                     fontSize: 14,
+                    colorText: '#ffffff',
+                    colorTextSecondary: 'rgba(255, 255, 255, 0.7)',
                 },
                 components: {
                     Button: {
@@ -25,33 +27,28 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                         controlHeightLG: 48,
                         controlHeightSM: 32,
                         borderRadius: 8,
-                        algorithm: true, // Enable algorithm for button states
+                        algorithm: true,
+                        primaryShadow: '0 4px 10px rgba(99, 102, 241, 0.4)',
                     },
                     Card: {
                         borderRadiusLG: 16,
-                        colorBgContainer: 'rgba(31, 31, 31, 0.6)', // Semi-transparent for glass effect
                     },
                     Input: {
-                        controlHeight: 40,
+                        controlHeight: 42,
                         borderRadius: 8,
-                        colorBgContainer: 'rgba(255, 255, 255, 0.04)',
-                        colorBorder: 'rgba(255, 255, 255, 0.1)',
                     },
                     Select: {
-                        controlHeight: 40,
+                        controlHeight: 42,
                         borderRadius: 8,
-                        colorBgContainer: 'rgba(255, 255, 255, 0.04)',
-                        colorBorder: 'rgba(255, 255, 255, 0.1)',
-                    },
-                    Table: {
-                        borderRadiusLG: 12,
-                        colorBgContainer: 'rgba(31, 31, 31, 0.4)',
-                        headerBg: 'rgba(255, 255, 255, 0.02)',
                     },
                     Menu: {
                         itemBorderRadius: 8,
                         itemHeight: 44,
                         itemMarginInline: 12,
+                        darkItemBg: 'transparent',
+                    },
+                    Typography: {
+                        fontFamilyCode: "'Outfit', sans-serif", // Using for headers via CSS mapping if needed
                     }
                 }
             }}

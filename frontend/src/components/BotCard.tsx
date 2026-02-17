@@ -1,6 +1,6 @@
 // frontend/src/components/BotCard.tsx
 import React from 'react';
-import { Card, Button, Tag, Typography, Space, Tooltip, Popconfirm } from 'antd';
+import { Card, Button, Tag, Typography, Tooltip, Popconfirm } from 'antd';
 import {
     RobotOutlined,
     SettingOutlined,
@@ -25,20 +25,24 @@ const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loadin
 
     return (
         <Card
+            className="glass-card"
+            bordered={false}
             actions={[
                 <Tooltip title={bot.is_active ? "Остановить" : "Запустить"}>
                     <Button
                         type="text"
-                        icon={bot.is_active ? <PauseCircleOutlined style={{ color: '#faad14' }} /> : <PlayCircleOutlined style={{ color: '#52c41a' }} />}
+                        icon={bot.is_active ? <PauseCircleOutlined style={{ color: '#faad14', fontSize: 18 }} /> : <PlayCircleOutlined style={{ color: '#52c41a', fontSize: 18 }} />}
                         onClick={() => onToggleStatus(bot)}
                         loading={loading}
+                        style={{ width: '100%', height: '100%', borderRadius: 0 }}
                     />
                 </Tooltip>,
                 <Tooltip title="Настройки">
                     <Button
                         type="text"
-                        icon={<SettingOutlined />}
+                        icon={<SettingOutlined style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 18 }} />}
                         onClick={() => navigate(`/bots/${bot.id}`)}
+                        style={{ width: '100%', height: '100%', borderRadius: 0 }}
                     />
                 </Tooltip>,
                 <Popconfirm
@@ -48,23 +52,41 @@ const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loadin
                     okText="Да"
                     cancelText="Нет"
                 >
-                    <Button type="text" icon={<DeleteOutlined />} danger />
+                    <Button
+                        type="text"
+                        icon={<DeleteOutlined style={{ color: '#ff4d4f', fontSize: 18 }} />}
+                        danger
+                        style={{ width: '100%', height: '100%', borderRadius: 0 }}
+                    />
                 </Popconfirm>
             ]}
         >
             <Card.Meta
-                avatar={<RobotOutlined style={{ fontSize: 24, color: '#1890ff' }} />}
+                avatar={
+                    <div style={{
+                        background: 'rgba(24, 144, 255, 0.1)',
+                        padding: 12,
+                        borderRadius: 12,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                        <RobotOutlined style={{ fontSize: 28, color: '#1890ff' }} />
+                    </div>
+                }
                 title={
-                    <Space>
-                        {bot.name}
-                        <Tag color={bot.is_active ? 'success' : 'default'}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: 16, fontWeight: 600 }}>{bot.name}</span>
+                        <Tag color={bot.is_active ? 'success' : 'default'} style={{ margin: 0 }}>
                             {bot.is_active ? 'Active' : 'Stopped'}
                         </Tag>
-                    </Space>
+                    </div>
                 }
                 description={
-                    <div>
-                        <Text type="secondary">@{bot.bot_username}</Text>
+                    <div style={{ marginTop: 8 }}>
+                        <Text type="secondary" copyable={{ text: bot.token }} style={{ fontSize: 13 }}>
+                            @{bot.bot_username}
+                        </Text>
                     </div>
                 }
             />
