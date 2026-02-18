@@ -79,7 +79,7 @@ async def get_users(
     # 3. Fetch details for these IDs
     # We need all records for these telegram_ids to aggregate sources
     details_query = (
-        select(BotUser, BotModel.username.label("bot_name"))
+        select(BotUser, BotModel.name.label("bot_name"))
         .join(BotModel, BotUser.source_bot_id == BotModel.id)
         .where(BotUser.telegram_id.in_(target_ids))
         .order_by(BotUser.last_seen_at.desc())
