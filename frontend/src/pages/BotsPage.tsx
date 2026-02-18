@@ -87,7 +87,7 @@ const BotsPage: React.FC = () => {
         // Make ghost image invisible or use default
     };
 
-    const onDragOver = (e: React.DragEvent, index: number) => {
+    const onDragOver = (e: React.DragEvent) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
         // Optional: Swap on hover logic here for smoother UX
@@ -155,7 +155,7 @@ const BotsPage: React.FC = () => {
                             xs={24} sm={24} md={12} lg={12} xl={8}
                             draggable
                             onDragStart={(e) => onDragStart(e, index)}
-                            onDragOver={(e) => onDragOver(e, index)}
+                            onDragOver={onDragOver}
                             onDrop={(e) => onDrop(e, index)}
                             style={{ cursor: 'move' }}
                         >
