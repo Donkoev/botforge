@@ -30,10 +30,9 @@ interface SortableBotCardProps {
     bot: Bot;
     onToggleStatus: (bot: Bot) => void;
     onDelete: (bot: Bot) => void;
-    isDragging?: boolean;
 }
 
-const SortableBotCard: React.FC<SortableBotCardProps> = ({ bot, onToggleStatus, onDelete, isDragging }) => {
+const SortableBotCard: React.FC<SortableBotCardProps> = ({ bot, onToggleStatus, onDelete }) => {
     const {
         attributes,
         listeners,
