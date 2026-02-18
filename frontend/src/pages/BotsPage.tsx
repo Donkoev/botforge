@@ -252,7 +252,8 @@ const BotsPage: React.FC = () => {
                         >
                             <motion.div
                                 layout
-                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                layoutId={String(bot.id)} // helps framer know it's the same item
+                                transition={{ type: "spring", stiffness: 150, damping: 20, mass: 1 }}
                                 style={{ height: '100%', opacity: draggedItem === index ? 0 : 1 }} // Hide source
                             >
                                 <BotCard
