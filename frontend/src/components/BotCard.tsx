@@ -31,18 +31,18 @@ const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loadin
                 <Tooltip title={bot.is_active ? "Остановить" : "Запустить"}>
                     <Button
                         type="text"
-                        icon={bot.is_active ? <PauseCircleOutlined style={{ color: '#faad14', fontSize: 18 }} /> : <PlayCircleOutlined style={{ color: '#52c41a', fontSize: 18 }} />}
+                        className="bot-action-btn"
+                        icon={bot.is_active ? <PauseCircleOutlined style={{ fontSize: 18 }} /> : <PlayCircleOutlined style={{ fontSize: 18 }} />}
                         onClick={() => onToggleStatus(bot)}
                         loading={loading}
-                        style={{ width: '100%', height: '100%', borderRadius: 0 }}
                     />
                 </Tooltip>,
                 <Tooltip title="Настройки">
                     <Button
                         type="text"
-                        icon={<SettingOutlined style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 18 }} />}
+                        className="bot-action-btn"
+                        icon={<SettingOutlined style={{ fontSize: 18 }} />}
                         onClick={() => navigate(`/bots/${bot.id}`)}
-                        style={{ width: '100%', height: '100%', borderRadius: 0 }}
                     />
                 </Tooltip>,
                 <Popconfirm
@@ -54,9 +54,9 @@ const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loadin
                 >
                     <Button
                         type="text"
-                        icon={<DeleteOutlined style={{ color: '#ff4d4f', fontSize: 18 }} />}
+                        className="bot-action-btn"
+                        icon={<DeleteOutlined style={{ fontSize: 18 }} />}
                         danger
-                        style={{ width: '100%', height: '100%', borderRadius: 0 }}
                     />
                 </Popconfirm>
             ]}
