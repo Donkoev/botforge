@@ -43,15 +43,17 @@ const SortableBotCard: React.FC<SortableBotCardProps> = ({ bot, onToggleStatus, 
     } = useSortable({
         id: bot.id,
         transition: {
-            duration: 250,
-            easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+            duration: 350,
+            easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
         }
     });
 
     const style: React.CSSProperties = {
         transform: CSS.Transform.toString(transform),
         transition,
-        opacity: isSortableDragging ? 0.4 : 1,
+        opacity: isSortableDragging ? 0.5 : 1,
+        scale: isSortableDragging ? '0.97' : '1',
+        filter: isSortableDragging ? 'brightness(0.7)' : 'none',
         height: '100%',
     };
 
@@ -249,13 +251,17 @@ const BotsPage: React.FC = () => {
                         </Row>
                     </SortableContext>
 
-                    <DragOverlay adjustScale={false}>
+                    <DragOverlay adjustScale={false} dropAnimation={{
+                        duration: 300,
+                        easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                    }}>
                         {activeBot ? (
                             <div style={{
-                                transform: 'rotate(2deg) scale(1.03)',
-                                boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+                                transform: 'rotate(1.5deg) scale(1.04)',
+                                boxShadow: '0 24px 60px rgba(0,0,0,0.45), 0 0 30px rgba(99, 102, 241, 0.15)',
                                 borderRadius: 12,
-                                opacity: 0.95,
+                                opacity: 1,
+                                backdropFilter: 'blur(12px)',
                             }}>
                                 <BotCard
                                     bot={activeBot}
