@@ -43,7 +43,7 @@ const SortableBotCard: React.FC<SortableBotCardProps> = ({ bot, onToggleStatus, 
     } = useSortable({
         id: bot.id,
         transition: {
-            duration: 450,
+            duration: 600,
             easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
         }
     });
@@ -257,7 +257,7 @@ const BotsPage: React.FC = () => {
                     }}>
                         {activeBot ? (
                             <div style={{
-                                transform: 'rotate(1.5deg) scale(1.04)',
+                                transform: 'scale(1.04)',
                                 boxShadow: '0 24px 60px rgba(0,0,0,0.45), 0 0 30px rgba(99, 102, 241, 0.15)',
                                 borderRadius: 12,
                                 opacity: 1,
