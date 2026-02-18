@@ -243,20 +243,18 @@ const BotsPage: React.FC = () => {
                             onDrop={onDrop}
                             onDragEnter={() => {
                                 // Enhanced logic to prevent "mating" (flickering)
-                                // Only swap if enough time passed OR if we moved to a completely different index (not just toggling)
+                                // Only swap if enough time passed. 
+                                // Increased to 500ms to allow animation to finish before accepting new swaps.
                                 const now = Date.now();
-                                if (now - lastSwapTime.current < 150) return; // Keep a reasonable throttle
+                                if (now - lastSwapTime.current < 500) return;
 
                                 if (draggedItem !== null && draggedItem !== index) {
                                     lastSwapTime.current = now;
 
-                                    // Perform the swap
                                     const newBots = [...bots];
                                     const draggedBot = newBots[draggedItem];
 
-                                    // Remove from old
                                     newBots.splice(draggedItem, 1);
-                                    // Insert at new
                                     newBots.splice(index, 0, draggedBot);
 
                                     setBots(newBots);
@@ -267,15 +265,13 @@ const BotsPage: React.FC = () => {
                             <motion.div
                                 layout
                                 layoutId={String(bot.id)}
-                                transition={{
-                                    type: "spring",
-                                    stiffness: 300,
-                                    damping: 30,
-                                    mass: 1.2 // slightly heavier feel
-                                }}
+                                transition={{ duration: 0.5, ease: "easeInOut" }} // Slower, smoother, more deliberate
                                 style={{
                                     height: '100%',
-                                    opacity: draggedItem === index ? 0 : 1
+                                    opacity: draggedItem === index ? 0 : 1,
+                                    // Re-adding pointer-events none to the placeholder (source) ONLY
+                                    // This ensures the mouse "falls through" the hole to the target underneath
+                                    pointerEvents: draggedItem === index ? 'none' : 'auto'
                                 }}
                             >
                                 <BotCard
