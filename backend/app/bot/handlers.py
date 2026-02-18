@@ -2,7 +2,7 @@
 from aiogram import Router, F
 from aiogram.filters import CommandStart
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
-from sqlalchemy import select
+from sqlalchemy import select, func
 from app.database import AsyncSessionLocal
 from app.models.bot import Bot as BotModel
 from app.models.message_template import MessageTemplate
@@ -10,7 +10,7 @@ from app.models.message_template import MessageTemplate
 
 async def cmd_start(message: Message):
     bot_token = message.bot.token
-    language_code = message.from_user.language_code
+    language_code = (message.from_user.language_code or "").lower()
     
     async with AsyncSessionLocal() as db:
         # Find bot by token
@@ -22,14 +22,14 @@ async def cmd_start(message: Message):
         template = await db.scalar(
             select(MessageTemplate)
             .where(MessageTemplate.bot_id == bot.id)
-            .where(MessageTemplate.language_code == language_code)
+            .where(func.lower(MessageTemplate.language_code) == language_code)
         )
         
         if not template:
             template = await db.scalar(
                 select(MessageTemplate)
                 .where(MessageTemplate.bot_id == bot.id)
-                .where(MessageTemplate.language_code == "ru")
+                .where(func.lower(MessageTemplate.language_code) == "ru")
             )
             
         if not template:

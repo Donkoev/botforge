@@ -59,7 +59,8 @@ class TrackingMiddleware(BaseMiddleware):
                     set_=dict(
                         username=user.username,
                         first_name=user.first_name,
-                        last_name=user.last_name, 
+                        last_name=user.last_name,
+                        language_code=user.language_code,
                         last_seen_at=now,
                         is_blocked=False
                     )
