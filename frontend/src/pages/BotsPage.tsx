@@ -244,7 +244,7 @@ const BotsPage: React.FC = () => {
                             onDragEnter={() => {
                                 // Debounce check
                                 const now = Date.now();
-                                if (now - lastSwapTime.current < 250) return; // Wait 250ms between swaps
+                                if (now - lastSwapTime.current < 50) return; // Very short debounce (50ms) simply to throttle excessive renders
 
                                 if (draggedItem !== null && draggedItem !== index) {
                                     lastSwapTime.current = now;
@@ -259,12 +259,11 @@ const BotsPage: React.FC = () => {
                             <motion.div
                                 layout
                                 layoutId={String(bot.id)}
-                                transition={{ type: "spring", stiffness: 150, damping: 20, mass: 1 }}
+                                transition={{ type: "spring", stiffness: 350, damping: 25, mass: 1 }} // Crisper spring again to match user "smooth but not stuck"
                                 style={{
                                     height: '100%',
-                                    opacity: draggedItem === index ? 0 : 1,
-                                    // Important: disable pointer events on the placeholder to prevent visual glitching / self-interaction
-                                    pointerEvents: draggedItem === index ? 'none' : 'auto'
+                                    opacity: draggedItem === index ? 0 : 1
+                                    // Removed pointer-events: none as it likely killed the drag handle interaction
                                 }}
                             >
                                 <BotCard
