@@ -21,16 +21,16 @@ async def get_stats_overview(
     week_start = now - timedelta(days=7)
 
     # Total users
-    total_users = await db.scalar(select(func.count(BotUser.id)))
+    total_users = await db.scalar(select(func.count(func.distinct(BotUser.telegram_id))))
     
     # New today
     new_today = await db.scalar(
-        select(func.count(BotUser.id)).where(BotUser.first_seen_at >= today_start)
+        select(func.count(func.distinct(BotUser.telegram_id))).where(BotUser.first_seen_at >= today_start)
     )
     
     # New this week
     new_week = await db.scalar(
-        select(func.count(BotUser.id)).where(BotUser.first_seen_at >= week_start)
+        select(func.count(func.distinct(BotUser.telegram_id))).where(BotUser.first_seen_at >= week_start)
     )
     
     # Active bots
@@ -58,10 +58,10 @@ async def get_daily_stats(
     stmt = (
         select(
             func.to_char(BotUser.first_seen_at, 'YYYY-MM-DD').label('date'),
-            func.count(BotUser.id).label('count')
+            func.count(func.distinct(BotUser.telegram_id)).label('count')
         )
         .where(BotUser.first_seen_at >= start_date)
-        .group_by('date')
+        .group_by(text('date')) # group by the formatted date string
         .order_by('date')
     )
     
