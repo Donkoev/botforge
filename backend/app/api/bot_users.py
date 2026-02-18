@@ -50,4 +50,16 @@ async def export_users(
     current_user = Depends(get_current_user)
 ):
     # TODO: Implement CSV export
-    return {"message": "Export not implemented yet"}
+@router.delete("/{user_id}")
+async def delete_user(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    user = await db.get(BotUser, user_id)
+    if not user:
+        return {"error": "User not found"}
+    
+    await db.delete(user)
+    await db.commit()
+    return {"message": "User deleted"}
