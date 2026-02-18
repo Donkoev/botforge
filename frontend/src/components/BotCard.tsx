@@ -28,7 +28,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loadin
         <Card
             className="glass-card generic-transition"
             bordered={false}
-            bodyStyle={{ padding: 20, paddingTop: 32, position: 'relative' }} // Added padding top for handle
+            bodyStyle={{ padding: 24, position: 'relative' }} // Standard padding
             actions={[
                 <Tooltip title={bot.is_active ? "Остановить" : "Запустить"}>
                     <Button
@@ -58,32 +58,42 @@ const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loadin
                 </Tooltip>
             ]}
         >
-            {/* Drag Handle - 2x3 Dots */}
+            {/* Drag Handle - 2x3 Dots - Better styling */}
             <div
                 className="drag-handle"
                 {...dragHandleProps}
                 style={{
                     position: 'absolute',
-                    top: 12,
-                    left: 12,
+                    top: 16,
+                    right: 16, // Move to right as user suggested "dots usually there" (often context menu or drag is top-right)
+                    // actually, let's keep it top-left or try top-right. 
+                    // Let's try TOP-RIGHT as it often balances the title if title is left. 
+                    // However, in our card, title is top-left.
+                    // Let's stick to user request "dots 2 on 3".
+                    // I'll place it Top-Left but simpler.
+                    left: 16,
                     cursor: 'grab',
-                    padding: '4px',
-                    borderRadius: '4px',
-                    color: 'rgba(255,255,255,0.2)',
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    width: 20,
-                    height: 24,
-                    gap: 3,
-                    zIndex: 10
+                    padding: '8px',
+                    borderRadius: '8px',
+                    color: 'rgba(255,255,255, 0.6)', // More visible
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, 4px)',
+                    gridTemplateRows: 'repeat(3, 4px)',
+                    gap: '4px',
+                    zIndex: 10,
+                    transition: 'all 0.2s',
+                    background: 'rgba(255,255,255,0.05)' // Subtle background area
                 }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#fff'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255, 0.6)'; }}
             >
                 {[...Array(6)].map((_, i) => (
                     <div key={i} style={{ width: 4, height: 4, background: 'currentColor', borderRadius: '50%' }} />
                 ))}
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100%', paddingLeft: 36 }}>
+                {/* Added paddingLeft to avoid overlap with handle */}
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
                     <div style={{
                         background: 'rgba(24, 144, 255, 0.1)',

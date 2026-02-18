@@ -82,20 +82,17 @@ const BotsPage: React.FC = () => {
     const [draggedItem, setDraggedItem] = useState<number | null>(null);
 
     const onDragStart = (e: React.DragEvent, index: number) => {
-        // Check if the target is the drag handle
-        const target = e.target as HTMLElement;
-        const handle = target.closest('.drag-handle');
-
-        if (!handle) {
-            e.preventDefault();
-            return;
-        }
-
         setDraggedItem(index);
         e.dataTransfer.effectAllowed = 'move';
 
-        // Use the card element (the handler's parent's parent usually, or specific ID) as drag image if needed
-        // but default usually works if we drag the container.
+        // Use the card wrapper as the drag image
+        // handle -> div.drag-handle -> div.ant-card-body -> div.ant-card -> div (wrapper) -> div.ant-col
+        // We want the Col or the wrapper div.
+        const target = e.target as HTMLElement;
+        const cardWrapper = target.closest('.ant-col');
+        if (cardWrapper) {
+            e.dataTransfer.setDragImage(cardWrapper, 0, 0);
+        }
     };
 
     const onDragOver = (e: React.DragEvent) => {
@@ -176,16 +173,15 @@ const BotsPage: React.FC = () => {
                             onDragOver={onDragOver}
                             onDrop={(e) => onDrop(e, index)}
                         >
-                            <div
-                                draggable
-                                onDragStart={(e) => onDragStart(e, index)}
-                                style={{ height: '100%' }} // Ensure wrapper takes full height
-                            >
+                            <div style={{ height: '100%' }}>
                                 <BotCard
                                     bot={bot}
                                     onToggleStatus={handleToggleStatus}
                                     onDelete={handleDeleteClick}
-                                // Pass additional class or prop if needed, currently BotCard has .drag-handle
+                                    dragHandleProps={{
+                                        draggable: true,
+                                        onDragStart: (e: React.DragEvent) => onDragStart(e, index)
+                                    }}
                                 />
                             </div>
                         </Col>
