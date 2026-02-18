@@ -234,6 +234,17 @@ h6 {
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
 }
 
+/* Fix Autofill Background Color */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px rgba(0, 0, 0, 0.2) inset !important;
+  -webkit-text-fill-color: white !important;
+  caret-color: white !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 .ant-select-selector {
   background: rgba(0, 0, 0, 0.2) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
