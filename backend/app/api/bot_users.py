@@ -6,7 +6,7 @@ from typing import Optional
 from app.database import get_db
 from app.models.bot_user import BotUser
 from app.models.bot import Bot as BotModel
-from app.schemas.bot_user import PaginatedUsers, BotUserResponse
+from app.schemas.bot_user import PaginatedUsers, GroupedBotUserResponse
 from app.api.auth import get_current_user
 
 router = APIRouter(prefix="/users", tags=["users"])
