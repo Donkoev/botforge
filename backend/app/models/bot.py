@@ -17,4 +17,4 @@ class Bot(Base):
 
     # Связи
     templates = relationship("MessageTemplate", back_populates="bot", cascade="all, delete-orphan")
-    bot_users = relationship("BotUser", back_populates="source_bot")
+    bot_users = relationship("BotUser", back_populates="source_bot", cascade="all, delete-orphan")
