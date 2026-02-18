@@ -8,7 +8,8 @@ export interface BotUser {
     first_name: string | null;
     last_name: string | null;
     language_code: string | null;
-    source_bot_id: number;
+    // source_bot_id: number; // Removed in favor of aggregated sources
+    sources: string[];
     is_blocked: boolean;
     first_seen_at: string;
     last_seen_at: string;

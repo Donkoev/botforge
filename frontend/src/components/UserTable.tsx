@@ -14,11 +14,11 @@ interface UserTableProps {
         total: number;
     };
     onChange: (pagination: any) => void;
-    bots: import('../api/bots').Bot[];
+    // bots: import('../api/bots').Bot[]; // Removed as sources are now strings in user object
     onDelete?: (id: number) => void;
 }
 
-const UserTable: React.FC<UserTableProps> = ({ users, loading, pagination, onChange, bots, onDelete }) => {
+const UserTable: React.FC<UserTableProps> = ({ users, loading, pagination, onChange, onDelete }) => {
     const columns: ColumnsType<BotUser> = [
         {
             title: 'ID',
@@ -43,13 +43,18 @@ const UserTable: React.FC<UserTableProps> = ({ users, loading, pagination, onCha
             render: (code) => code ? <Tag color="default" style={{ background: 'rgba(255,255,255,0.05)', border: 'none' }}>{code.toUpperCase()}</Tag> : '-'
         },
         {
-            title: 'Источник',
-            dataIndex: 'source_bot_id',
-            key: 'source_bot_id',
-            render: (id) => {
-                const botName = bots.find(b => b.id === id)?.name || `Bot #${id}`;
-                return <Tag color="processing" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', border: 'none' }}>{botName}</Tag>;
-            },
+            title: 'Источники',
+            dataIndex: 'sources',
+            key: 'sources',
+            render: (sources: string[]) => (
+                <>
+                    {sources && sources.map((botName, index) => (
+                        <Tag key={index} color="processing" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', border: 'none', marginRight: 4 }}>
+                            {botName}
+                        </Tag>
+                    ))}
+                </>
+            ),
         },
         {
             title: 'Статус',

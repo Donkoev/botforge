@@ -136,7 +136,6 @@ const UsersPage: React.FC = () => {
                     loading={loading}
                     pagination={{ ...pagination, total }}
                     onChange={handleTableChange}
-                    bots={bots}
                     onDelete={handleDeleteUser}
                 />
             </Card>
