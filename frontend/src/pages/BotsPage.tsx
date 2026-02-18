@@ -242,15 +242,23 @@ const BotsPage: React.FC = () => {
                             onDragOver={onDragOver}
                             onDrop={onDrop}
                             onDragEnter={() => {
-                                // Debounce check - increased to 200ms to prevent flickering/"mating"
+                                // Enhanced logic to prevent "mating" (flickering)
+                                // Only swap if enough time passed OR if we moved to a completely different index (not just toggling)
                                 const now = Date.now();
-                                if (now - lastSwapTime.current < 200) return;
+                                if (now - lastSwapTime.current < 150) return; // Keep a reasonable throttle
 
                                 if (draggedItem !== null && draggedItem !== index) {
                                     lastSwapTime.current = now;
+
+                                    // Perform the swap
                                     const newBots = [...bots];
-                                    const [movedItem] = newBots.splice(draggedItem, 1);
-                                    newBots.splice(index, 0, movedItem);
+                                    const draggedBot = newBots[draggedItem];
+
+                                    // Remove from old
+                                    newBots.splice(draggedItem, 1);
+                                    // Insert at new
+                                    newBots.splice(index, 0, draggedBot);
+
                                     setBots(newBots);
                                     setDraggedItem(index);
                                 }
@@ -259,11 +267,15 @@ const BotsPage: React.FC = () => {
                             <motion.div
                                 layout
                                 layoutId={String(bot.id)}
-                                transition={{ duration: 0.3, ease: "easeOut" }} // Smooth linear-ish slide instead of spring to reduce visual noise
+                                transition={{
+                                    type: "spring",
+                                    stiffness: 300,
+                                    damping: 30,
+                                    mass: 1.2 // slightly heavier feel
+                                }}
                                 style={{
                                     height: '100%',
                                     opacity: draggedItem === index ? 0 : 1
-                                    // Removed pointer-events: none as it likely killed the drag handle interaction
                                 }}
                             >
                                 <BotCard
