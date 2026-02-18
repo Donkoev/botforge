@@ -178,6 +178,9 @@ const BotsPage: React.FC = () => {
         });
     };
 
+    // Debounce ref to prevent rapid swapping
+    const lastSwapTime = React.useRef(0);
+
     return (
         <div>
             {/* Custom Drag Ghost */}
@@ -190,9 +193,8 @@ const BotsPage: React.FC = () => {
                     width: ghostSize.width,
                     pointerEvents: 'none',
                     zIndex: 9999,
-                    opacity: 0, // Hidden until drag start
+                    opacity: 0,
                     transition: 'opacity 0.1s',
-                    // Optional: slight rotation or scale for "lifted" effect
                     transformOrigin: 'top left'
                 }}
             >
@@ -200,15 +202,15 @@ const BotsPage: React.FC = () => {
                     <div style={{ transform: 'rotate(2deg) scale(1.02)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
                         <BotCard
                             bot={draggedBot}
-                            onToggleStatus={() => { }} // Dummy
-                            onDelete={() => { }} // Dummy
-                        // We can render without handle or with handle, doesn't matter much.
+                            onToggleStatus={() => { }}
+                            onDelete={() => { }}
                         />
                     </div>
                 )}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
+                {/* Header ... */}
                 <div>
                     <Title level={2} style={{ margin: 0, fontSize: 28 }}>Боты</Title>
                     <Text type="secondary">Управление вашими Telegram ботами</Text>
@@ -240,8 +242,12 @@ const BotsPage: React.FC = () => {
                             onDragOver={onDragOver}
                             onDrop={onDrop}
                             onDragEnter={() => {
-                                // Swap logic for smooth reordering
+                                // Debounce check
+                                const now = Date.now();
+                                if (now - lastSwapTime.current < 250) return; // Wait 250ms between swaps
+
                                 if (draggedItem !== null && draggedItem !== index) {
+                                    lastSwapTime.current = now;
                                     const newBots = [...bots];
                                     const [movedItem] = newBots.splice(draggedItem, 1);
                                     newBots.splice(index, 0, movedItem);
@@ -252,9 +258,14 @@ const BotsPage: React.FC = () => {
                         >
                             <motion.div
                                 layout
-                                layoutId={String(bot.id)} // helps framer know it's the same item
+                                layoutId={String(bot.id)}
                                 transition={{ type: "spring", stiffness: 150, damping: 20, mass: 1 }}
-                                style={{ height: '100%', opacity: draggedItem === index ? 0 : 1 }} // Hide source
+                                style={{
+                                    height: '100%',
+                                    opacity: draggedItem === index ? 0 : 1,
+                                    // Important: disable pointer events on the placeholder to prevent visual glitching / self-interaction
+                                    pointerEvents: draggedItem === index ? 'none' : 'auto'
+                                }}
                             >
                                 <BotCard
                                     bot={bot}
