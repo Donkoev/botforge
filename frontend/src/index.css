@@ -406,7 +406,33 @@ input:-webkit-autofill:active {
   border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
-.ant-card-actions {
-  background: rgba(0, 0, 0, 0.1) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+
+/* Glass Confirm Modal */
+.glass-modal-confirm .ant-modal-content {
+  background: rgba(30, 30, 35, 0.85) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+}
+
+.glass-modal-confirm .ant-modal-confirm-title {
+  color: white !important;
+  font-family: 'Outfit', sans-serif;
+  font-size: 18px !important;
+}
+
+.glass-modal-confirm .ant-modal-confirm-content {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.glass-modal-confirm .ant-btn-default {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.glass-modal-confirm .ant-btn-default:hover {
+  border-color: white;
+  color: white;
 }

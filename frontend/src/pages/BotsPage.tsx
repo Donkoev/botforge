@@ -79,6 +79,49 @@ const BotsPage: React.FC = () => {
         }
     };
 
+    const [draggedItem, setDraggedItem] = useState<number | null>(null);
+
+    const onDragStart = (e: React.DragEvent, index: number) => {
+        setDraggedItem(index);
+        e.dataTransfer.effectAllowed = 'move';
+        // Make ghost image invisible or use default
+    };
+
+    const onDragOver = (e: React.DragEvent, index: number) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        // Optional: Swap on hover logic here for smoother UX
+    };
+
+    const onDrop = (e: React.DragEvent, index: number) => {
+        e.preventDefault();
+        if (draggedItem === null) return;
+        if (draggedItem === index) return;
+
+        const newBots = [...bots];
+        const [movedItem] = newBots.splice(draggedItem, 1);
+        newBots.splice(index, 0, movedItem);
+        setBots(newBots);
+        setDraggedItem(null);
+    };
+
+    const handleDeleteClick = (bot: Bot) => {
+        Modal.confirm({
+            title: 'Удалить бота?',
+            content: `Вы уверены, что хотите удалить ${bot.name}? Это действие необратимо.`,
+            okText: 'Удалить',
+            cancelText: 'Отмена',
+            okType: 'danger',
+            className: 'glass-modal-confirm', // Ensure this class is in CSS
+            centered: true,
+            icon: <div style={{ color: '#ff4d4f', marginRight: 12, fontSize: 22 }}>⚠️</div>, // Custom icon if needed
+            maskClosable: true,
+            onOk: () => handleDelete(bot),
+            cancelButtonProps: { size: 'large' },
+            okButtonProps: { size: 'large' }
+        });
+    };
+
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
@@ -106,12 +149,20 @@ const BotsPage: React.FC = () => {
                 />
             ) : (
                 <Row gutter={[24, 24]}>
-                    {bots.map(bot => (
-                        <Col key={bot.id} xs={24} sm={24} md={12} lg={12} xl={8}>
+                    {bots.map((bot, index) => (
+                        <Col
+                            key={bot.id}
+                            xs={24} sm={24} md={12} lg={12} xl={8}
+                            draggable
+                            onDragStart={(e) => onDragStart(e, index)}
+                            onDragOver={(e) => onDragOver(e, index)}
+                            onDrop={(e) => onDrop(e, index)}
+                            style={{ cursor: 'move' }}
+                        >
                             <BotCard
                                 bot={bot}
                                 onToggleStatus={handleToggleStatus}
-                                onDelete={handleDelete}
+                                onDelete={handleDeleteClick}
                             />
                         </Col>
                     ))}

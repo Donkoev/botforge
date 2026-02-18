@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Tag, Button, Popconfirm } from 'antd';
+import { Table, Tag, Button, Modal } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { BotUser } from '../api/users';
 import { formatDate } from '../utils/helpers';
@@ -80,15 +80,27 @@ const UserTable: React.FC<UserTableProps> = ({ users, loading, pagination, onCha
             title: 'Действия',
             key: 'actions',
             render: (_, record) => (
-                <Popconfirm
-                    title="Удалить этого пользователя?"
-                    description="Действие нельзя отменить."
-                    onConfirm={() => onDelete && onDelete(record.id)}
-                    okText="Да"
-                    cancelText="Нет"
-                >
-                    <Button type="text" danger icon={<DeleteOutlined />} />
-                </Popconfirm>
+                <Button
+                    type="text"
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => {
+                        Modal.confirm({
+                            title: 'Удалить пользователя?',
+                            content: `Вы уверены, что хотите удалить пользователя ${record.first_name || record.username || record.telegram_id}?`,
+                            okText: 'Удалить',
+                            cancelText: 'Отмена',
+                            okType: 'danger',
+                            className: 'glass-modal-confirm',
+                            centered: true,
+                            icon: <div style={{ color: '#ff4d4f', marginRight: 12, fontSize: 22 }}>⚠️</div>,
+                            maskClosable: true,
+                            onOk: () => onDelete && onDelete(record.id),
+                            cancelButtonProps: { size: 'large' },
+                            okButtonProps: { size: 'large' }
+                        });
+                    }}
+                />
             ),
         }
     ];

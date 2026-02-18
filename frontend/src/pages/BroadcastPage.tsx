@@ -1,6 +1,6 @@
 // frontend/src/pages/BroadcastPage.tsx
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Typography, Tag, Space, message, Popconfirm, Progress, Card } from 'antd';
+import { Table, Button, Typography, Tag, Space, message, Progress, Card, Modal } from 'antd';
 import { PlusOutlined, StopOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import BroadcastForm from '../components/BroadcastForm';
 import { broadcastApi, Broadcast } from '../api/broadcast';
@@ -130,9 +130,27 @@ const BroadcastPage: React.FC = () => {
                         </Button>
                     )}
                     {record.status === 'sending' && (
-                        <Popconfirm title="Остановить рассылку?" onConfirm={() => handleCancel(record.id)}>
-                            <Button size="small" danger icon={<StopOutlined />}>Стоп</Button>
-                        </Popconfirm>
+                        <Button
+                            size="small"
+                            danger
+                            icon={<StopOutlined />}
+                            onClick={() => {
+                                Modal.confirm({
+                                    title: 'Остановить рассылку?',
+                                    content: 'Отправка сообщений будет прервана. Продолжить?',
+                                    okText: 'Стоп',
+                                    cancelText: 'Отмена',
+                                    okType: 'danger',
+                                    className: 'glass-modal-confirm',
+                                    centered: true,
+                                    icon: <div style={{ color: '#ff4d4f', marginRight: 12, fontSize: 22 }}>⚠️</div>,
+                                    maskClosable: true,
+                                    onOk: () => handleCancel(record.id)
+                                });
+                            }}
+                        >
+                            Стоп
+                        </Button>
                     )}
                 </Space>
             )

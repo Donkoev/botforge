@@ -1,6 +1,6 @@
 // frontend/src/components/BotCard.tsx
 import React from 'react';
-import { Card, Button, Tag, Typography, Tooltip, Popconfirm } from 'antd';
+import { Card, Button, Tag, Typography, Tooltip } from 'antd';
 import {
     RobotOutlined,
     SettingOutlined,
@@ -45,20 +45,15 @@ const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loadin
                         onClick={() => navigate(`/bots/${bot.id}`)}
                     />
                 </Tooltip>,
-                <Popconfirm
-                    title="Удалить бота?"
-                    description="Это действие нельзя отменить."
-                    onConfirm={() => onDelete(bot)}
-                    okText="Да"
-                    cancelText="Нет"
-                >
+                <Tooltip title="Удалить">
                     <Button
                         type="text"
                         className="bot-action-btn"
                         icon={<DeleteOutlined style={{ fontSize: 18 }} />}
+                        onClick={() => onDelete(bot)}
                         danger
                     />
-                </Popconfirm>
+                </Tooltip>
             ]}
         >
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
