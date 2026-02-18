@@ -40,7 +40,7 @@ class TrackingMiddleware(BaseMiddleware):
                 logger.warning("TrackingMiddleware: Unknown bot")
                 return await handler(event, data)
 
-            logger.info(f"TrackingMiddleware: Bot ID {bot_model.id}, user {user.id}")
+            logger.info(f"TrackingMiddleware: Bot ID {bot_model.id}, user {user.id}, language_code={user.language_code}")
 
             # Upsert BotUser
             try:
