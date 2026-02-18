@@ -50,6 +50,8 @@ async def export_users(
     current_user = Depends(get_current_user)
 ):
     # TODO: Implement CSV export
+    return {"message": "Export not implemented yet"}
+
 @router.delete("/{user_id}")
 async def delete_user(
     user_id: int,
