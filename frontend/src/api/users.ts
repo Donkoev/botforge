@@ -20,8 +20,11 @@ export interface PaginatedUsers {
 }
 
 export const usersApi = {
-    getAll: async (params: { page: number; limit: number; search?: string; bot_id?: number }): Promise<PaginatedUsers> => {
+    getAll: async (params: { page: number; limit: number; search?: string; bot_id?: number; }): Promise<PaginatedUsers> => {
         const response = await api.get<PaginatedUsers>('/users/', { params });
         return response.data;
+    },
+    delete: async (id: number): Promise<void> => {
+        await api.delete(`/users/${id}`);
     },
 };

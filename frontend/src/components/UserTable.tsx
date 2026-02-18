@@ -1,6 +1,6 @@
-// frontend/src/components/UserTable.tsx
 import React from 'react';
-import { Table, Tag } from 'antd';
+import { Table, Tag, Button, Popconfirm } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import { BotUser } from '../api/users';
 import { formatDate } from '../utils/helpers';
 import { ColumnsType } from 'antd/es/table';
@@ -15,9 +15,10 @@ interface UserTableProps {
     };
     onChange: (pagination: any) => void;
     bots: import('../api/bots').Bot[];
+    onDelete?: (id: number) => void;
 }
 
-const UserTable: React.FC<UserTableProps> = ({ users, loading, pagination, onChange, bots }) => {
+const UserTable: React.FC<UserTableProps> = ({ users, loading, pagination, onChange, bots, onDelete }) => {
     const columns: ColumnsType<BotUser> = [
         {
             title: 'ID',
@@ -70,6 +71,21 @@ const UserTable: React.FC<UserTableProps> = ({ users, loading, pagination, onCha
             sorter: (a, b) => new Date(a.last_seen_at).getTime() - new Date(b.last_seen_at).getTime(),
             defaultSortOrder: 'descend',
         },
+        {
+            title: 'Действия',
+            key: 'actions',
+            render: (_, record) => (
+                <Popconfirm
+                    title="Удалить этого пользователя?"
+                    description="Действие нельзя отменить."
+                    onConfirm={() => onDelete && onDelete(record.id)}
+                    okText="Да"
+                    cancelText="Нет"
+                >
+                    <Button type="text" danger icon={<DeleteOutlined />} />
+                </Popconfirm>
+            ),
+        }
     ];
 
     return (

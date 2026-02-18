@@ -73,6 +73,17 @@ const UsersPage: React.FC = () => {
         fetchUsers();
     };
 
+    const handleDeleteUser = async (userId: number) => {
+        try {
+            await usersApi.delete(userId);
+            message.success('Пользователь удален');
+            fetchUsers();
+        } catch (error) {
+            console.error(error);
+            message.error('Ошибка при удалении');
+        }
+    };
+
     return (
         <div>
             <div style={{ marginBottom: 32 }}>
@@ -126,6 +137,7 @@ const UsersPage: React.FC = () => {
                     pagination={{ ...pagination, total }}
                     onChange={handleTableChange}
                     bots={bots}
+                    onDelete={handleDeleteUser}
                 />
             </Card>
         </div>
