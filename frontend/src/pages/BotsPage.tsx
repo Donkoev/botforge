@@ -242,9 +242,9 @@ const BotsPage: React.FC = () => {
                             onDragOver={onDragOver}
                             onDrop={onDrop}
                             onDragEnter={() => {
-                                // Debounce check
+                                // Debounce check - increased to 200ms to prevent flickering/"mating"
                                 const now = Date.now();
-                                if (now - lastSwapTime.current < 50) return; // Very short debounce (50ms) simply to throttle excessive renders
+                                if (now - lastSwapTime.current < 200) return;
 
                                 if (draggedItem !== null && draggedItem !== index) {
                                     lastSwapTime.current = now;
@@ -259,7 +259,7 @@ const BotsPage: React.FC = () => {
                             <motion.div
                                 layout
                                 layoutId={String(bot.id)}
-                                transition={{ type: "spring", stiffness: 350, damping: 25, mass: 1 }} // Crisper spring again to match user "smooth but not stuck"
+                                transition={{ duration: 0.3, ease: "easeOut" }} // Smooth linear-ish slide instead of spring to reduce visual noise
                                 style={{
                                     height: '100%',
                                     opacity: draggedItem === index ? 0 : 1
