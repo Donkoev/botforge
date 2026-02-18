@@ -102,6 +102,9 @@ async def delete_bot(
     if not bot:
         raise HTTPException(status_code=404, detail="Bot not found")
 
+    # Stop bot if running
+    await bot_manager.stop_bot(id)
+
     await db.delete(bot)
     await db.commit()
     return {"ok": True}
