@@ -5,8 +5,68 @@ import { PlusOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import BotCard from '../components/BotCard';
 import { botsApi, Bot } from '../api/bots';
+import {
+    DndContext,
+    closestCenter,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent,
+    DragStartEvent,
+    DragOverlay,
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    useSortable,
+    rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 
 const { Title, Text } = Typography;
+
+// Sortable wrapper for BotCard
+interface SortableBotCardProps {
+    bot: Bot;
+    onToggleStatus: (bot: Bot) => void;
+    onDelete: (bot: Bot) => void;
+    isDragging?: boolean;
+}
+
+const SortableBotCard: React.FC<SortableBotCardProps> = ({ bot, onToggleStatus, onDelete, isDragging }) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging: isSortableDragging,
+    } = useSortable({
+        id: bot.id,
+        transition: {
+            duration: 250,
+            easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+        }
+    });
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isSortableDragging ? 0.4 : 1,
+        height: '100%',
+    };
+
+    return (
+        <div ref={setNodeRef} style={style} {...attributes}>
+            <BotCard
+                bot={bot}
+                onToggleStatus={onToggleStatus}
+                onDelete={onDelete}
+                dragHandleProps={listeners}
+            />
+        </div>
+    );
+};
 
 const BotsPage: React.FC = () => {
     const [bots, setBots] = useState<Bot[]>([]);
@@ -14,6 +74,15 @@ const BotsPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [form] = Form.useForm();
     const [actionLoading, setActionLoading] = useState(false);
+    const [activeBot, setActiveBot] = useState<Bot | null>(null);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        })
+    );
 
     const fetchBots = async () => {
         try {
@@ -50,7 +119,6 @@ const BotsPage: React.FC = () => {
 
     const handleToggleStatus = async (bot: Bot) => {
         try {
-            // Optimistic update
             const newStatus = !bot.is_active;
             const updatedBot = { ...bot, is_active: newStatus };
             setBots(bots.map(b => b.id === bot.id ? updatedBot : b));
@@ -65,7 +133,7 @@ const BotsPage: React.FC = () => {
         } catch (error) {
             console.error(error);
             message.error('Ошибка изменения статуса');
-            fetchBots(); // Revert on error
+            fetchBots();
         }
     };
 
@@ -77,87 +145,6 @@ const BotsPage: React.FC = () => {
         } catch (error) {
             console.error(error);
             message.error('Ошибка удаления');
-        }
-    };
-
-    const [draggedItem, setDraggedItem] = useState<number | null>(null);
-
-    // State for Custom Drag Ghost
-    const [draggedBot, setDraggedBot] = useState<Bot | null>(null);
-    const ghostRef = React.useRef<HTMLDivElement>(null);
-    const [ghostSize, setGhostSize] = useState({ width: 0, height: 0 });
-
-    const onDragStart = (e: React.DragEvent, index: number) => {
-        const target = e.target as HTMLElement;
-        const handle = target.closest('.drag-handle');
-
-        if (!handle) {
-            e.preventDefault();
-            return;
-        }
-
-        setDraggedItem(index);
-        setDraggedBot(bots[index]);
-        e.dataTransfer.effectAllowed = 'move';
-
-        // Hide default drag image
-        const img = new Image();
-        img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-        e.dataTransfer.setDragImage(img, 0, 0);
-
-        // Capture size
-        const cardCol = target.closest('.ant-col');
-        if (cardCol) {
-            const rect = cardCol.getBoundingClientRect();
-            setGhostSize({ width: rect.width, height: rect.height });
-            // Initial position sets
-            if (ghostRef.current) {
-                ghostRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-                ghostRef.current.style.opacity = '1';
-            }
-        }
-    };
-
-    const onDrag = (e: React.DragEvent) => {
-        // Update ghost position
-        if (e.clientX === 0 && e.clientY === 0) return; // Ignore invalid end coordinates
-        if (ghostRef.current) {
-            // Center the ghost on cursor or offset? 
-            // Usually cursor on handle. Let's act like cursor is top-left of transparency, 
-            // but for better visual let's offset slightly so mouse is inside the card.
-            // But strict following is simpler.
-            // Let's rely on e.clientX/Y.
-            // Note: We might want some offset so we can see the drop target?
-            // "pointer-events: none" on ghost solves drop target blocking.
-            ghostRef.current.style.transform = `translate(${e.clientX + 10}px, ${e.clientY + 10}px)`;
-        }
-    };
-
-    const onDragEnd = () => {
-        setDraggedItem(null);
-        setDraggedBot(null);
-        if (ghostRef.current) {
-            ghostRef.current.style.opacity = '0';
-        }
-    };
-
-    const onDragOver = (e: React.DragEvent) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-    };
-
-    const onDrop = async (e: React.DragEvent) => {
-        e.preventDefault();
-        onDragEnd();
-
-        // Save new order to backend
-        // Note: 'bots' state is already updated live during drag
-        const reorderData = bots.map((b, i) => ({ id: b.id, display_order: i }));
-        try {
-            await botsApi.reorder(reorderData);
-        } catch (error) {
-            console.error('Failed to save order', error);
-            message.error('Ошибка сохранения порядка');
         }
     };
 
@@ -178,39 +165,40 @@ const BotsPage: React.FC = () => {
         });
     };
 
-    // Debounce ref to prevent rapid swapping
-    const lastSwapTime = React.useRef(0);
+    const handleDragStart = (event: DragStartEvent) => {
+        const bot = bots.find(b => b.id === event.active.id);
+        setActiveBot(bot || null);
+    };
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+        setActiveBot(null);
+        const { active, over } = event;
+
+        if (over && active.id !== over.id) {
+            const oldIndex = bots.findIndex(b => b.id === active.id);
+            const newIndex = bots.findIndex(b => b.id === over.id);
+
+            const newBots = [...bots];
+            const [moved] = newBots.splice(oldIndex, 1);
+            newBots.splice(newIndex, 0, moved);
+
+            setBots(newBots);
+
+            // Persist new order
+            const reorderData = newBots.map((b, i) => ({ id: b.id, display_order: i }));
+            try {
+                await botsApi.reorder(reorderData);
+            } catch (error) {
+                console.error('Failed to save order', error);
+                message.error('Ошибка сохранения порядка');
+                fetchBots();
+            }
+        }
+    };
 
     return (
         <div>
-            {/* Custom Drag Ghost */}
-            <div
-                ref={ghostRef}
-                style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: ghostSize.width,
-                    pointerEvents: 'none',
-                    zIndex: 9999,
-                    opacity: 0,
-                    transition: 'opacity 0.1s',
-                    transformOrigin: 'top left'
-                }}
-            >
-                {draggedBot && (
-                    <div style={{ transform: 'rotate(2deg) scale(1.02)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
-                        <BotCard
-                            bot={draggedBot}
-                            onToggleStatus={() => { }}
-                            onDelete={() => { }}
-                        />
-                    </div>
-                )}
-            </div>
-
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
-                {/* Header ... */}
                 <div>
                     <Title level={2} style={{ margin: 0, fontSize: 28 }}>Боты</Title>
                     <Text type="secondary">Управление вашими Telegram ботами</Text>
@@ -234,61 +222,51 @@ const BotsPage: React.FC = () => {
                     image={Empty.PRESENTED_IMAGE_SIMPLE}
                 />
             ) : (
-                <Row gutter={[24, 24]}>
-                    {bots.map((bot, index) => (
-                        <Col
-                            key={bot.id}
-                            xs={24} sm={24} md={12} lg={12} xl={8}
-                            onDragOver={onDragOver}
-                            onDrop={onDrop}
-                            onDragEnter={() => {
-                                // Enhanced logic to prevent "mating" (flickering)
-                                // Only swap if enough time passed. 
-                                // Increased to 500ms to allow animation to finish before accepting new swaps.
-                                const now = Date.now();
-                                if (now - lastSwapTime.current < 500) return;
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                    modifiers={[restrictToWindowEdges]}
+                >
+                    <SortableContext items={bots.map(b => b.id)} strategy={rectSortingStrategy}>
+                        <Row gutter={[24, 24]}>
+                            {bots.map((bot, index) => (
+                                <Col key={bot.id} xs={24} sm={24} md={12} lg={12} xl={8}>
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.05, duration: 0.3 }}
+                                        style={{ height: '100%' }}
+                                    >
+                                        <SortableBotCard
+                                            bot={bot}
+                                            onToggleStatus={handleToggleStatus}
+                                            onDelete={handleDeleteClick}
+                                        />
+                                    </motion.div>
+                                </Col>
+                            ))}
+                        </Row>
+                    </SortableContext>
 
-                                if (draggedItem !== null && draggedItem !== index) {
-                                    lastSwapTime.current = now;
-
-                                    const newBots = [...bots];
-                                    const draggedBot = newBots[draggedItem];
-
-                                    newBots.splice(draggedItem, 1);
-                                    newBots.splice(index, 0, draggedBot);
-
-                                    setBots(newBots);
-                                    setDraggedItem(index);
-                                }
-                            }}
-                        >
-                            <motion.div
-                                layout
-                                layoutId={String(bot.id)}
-                                transition={{ duration: 0.5, ease: "easeInOut" }} // Slower, smoother, more deliberate
-                                style={{
-                                    height: '100%',
-                                    opacity: draggedItem === index ? 0 : 1,
-                                    // Re-adding pointer-events none to the placeholder (source) ONLY
-                                    // This ensures the mouse "falls through" the hole to the target underneath
-                                    pointerEvents: draggedItem === index ? 'none' : 'auto'
-                                }}
-                            >
+                    <DragOverlay adjustScale={false}>
+                        {activeBot ? (
+                            <div style={{
+                                transform: 'rotate(2deg) scale(1.03)',
+                                boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+                                borderRadius: 12,
+                                opacity: 0.95,
+                            }}>
                                 <BotCard
-                                    bot={bot}
-                                    onToggleStatus={handleToggleStatus}
-                                    onDelete={handleDeleteClick}
-                                    dragHandleProps={{
-                                        draggable: true,
-                                        onDragStart: (e: React.DragEvent) => onDragStart(e, index),
-                                        onDrag: onDrag,
-                                        onDragEnd: onDragEnd
-                                    }}
+                                    bot={activeBot}
+                                    onToggleStatus={() => { }}
+                                    onDelete={() => { }}
                                 />
-                            </motion.div>
-                        </Col>
-                    ))}
-                </Row>
+                            </div>
+                        ) : null}
+                    </DragOverlay>
+                </DndContext>
             )}
 
             <Modal
@@ -333,3 +311,4 @@ const BotsPage: React.FC = () => {
 };
 
 export default BotsPage;
+
