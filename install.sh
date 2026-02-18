@@ -1,64 +1,31 @@
 #!/bin/bash
 
-# BotForge Installation Script
+# BotForge Installation Script v2.0
+# Optimized for visual clarity and ease of use.
 
-# Colors and Formatting
-RED='\033[1;31m'
-GREEN='\033[1;32m'
-BLUE='\033[1;34m'
-CYAN='\033[1;36m'
-YELLOW='\033[1;33m'
-U_WHITE='\033[4;37m'
+# --- Colors & Formatting ---
+R='\033[0;31m'
+G='\033[0;32m'
+B='\033[0;34m'
+C='\033[0;36m'
+Y='\033[1;33m'
 NC='\033[0m' # No Color
 BOLD='\033[1m'
-DIM='\033[2m'
 
-# Helpers
-print_banner() {
-    clear
-    echo -e "${BLUE}${BOLD}"
-    echo "  ____        _     _____                      "
-    echo " |  _ \      | |   |  ___|__  _ __ __ _  ___   "
-    echo " | |_) |  _  | |   | |_ / _ \| '__/ _\` |/ _ \\  "
-    echo " |  _ <  | |_| |   |  _| (_) | | | (_| |  __/  "
-    echo " | |_) | | | | |   | |  \__, | | | (_| | |     "
-    echo " |____/  |_| |_|   |_|  |___/|_|  \__, |_|     "
-    echo "                                  |___/        "
-    echo -e "${NC}"
-    echo -e "${CYAN}  :: Telegram Bot Control Panel :: v1.0.0${NC}"
-    echo -e "${DIM}  https://github.com/Donkoev/botforge${NC}"
-    echo ""
-    echo "--------------------------------------------------------"
-    echo ""
+# --- Helpers ---
+
+draw_bar() {
+    local width=30
+    local percent=$1
+    local info=$2
+    local num=$((width * percent / 100))
+    local bar=$(printf "%0.s#" $(seq 1 $num))
+    local empty=$(printf "%0.s-" $(seq 1 $((width - num))))
+    
+    printf "\r${B}[${bar}${empty}]${NC} ${percent}%% - ${info} "
 }
 
-print_step() {
-    echo -e "${BLUE}${BOLD}==>${NC} ${BOLD}$1${NC}"
-}
-
-print_success() {
-    echo -e "${GREEN}✔ $1${NC}"
-}
-
-print_error() {
-    echo -e "${RED}✖ $1${NC}"
-}
-
-print_info() {
-    echo -e "${CYAN}ℹ $1${NC}"
-}
-
-check_cmd() {
-    if command -v "$1" &> /dev/null; then
-        print_success "$1 is installed"
-        return 0
-    else
-        print_error "$1 is missing"
-        return 1
-    fi
-}
-
-spinner() {
+show_spinner() {
     local pid=$1
     local delay=0.1
     local spinstr='|/-\'
@@ -72,151 +39,181 @@ spinner() {
     printf "    \b\b\b\b"
 }
 
-# Main Execution
-print_banner
+print_header() {
+    clear
+    echo -e "${B}${BOLD}"
+    echo "  ____        _     _____                      "
+    echo " |  _ \      | |   |  ___|__  _ __ __ _  ___   "
+    echo " | |_) |  _  | |   | |_ / _ \| '__/ _\` |/ _ \\  "
+    echo " |  _ <  | |_| |   |  _| (_) | | | (_| |  __/  "
+    echo " | |_) | | | | |   | |  \__, | | | (_| | |     "
+    echo " |____/  |_| |_|   |_|  |___/|_|  \__, |_|     "
+    echo "                                  |___/        "
+    echo -e "${NC}"
+    echo -e "${C}  :: Telegram Bot Control Panel :: v2.0${NC}"
+    echo -e "${Y}  ----------------------------------------${NC}"
+    echo ""
+}
 
-# 1. Check Root
-if [ "$EUID" -ne 0 ]; then
-  print_info "Running as non-root user. You might need sudo for some steps."
-fi
+print_success() {
+    echo -e "${G}✔ ${1}${NC}"
+}
 
-# 2. Check Dependencies
-print_step "Checking System Dependencies..."
+print_error() {
+    echo -e "${R}✖ ${1}${NC}"
+}
 
-if ! check_cmd git; then
-    print_info "Installing Git..."
-    if command -v apt-get &> /dev/null; then
-        apt-get update -qq && apt-get install -y -qq git
-    elif command -v yum &> /dev/null; then
-        yum install -y -q git
+check_dependency() {
+    local cmd=$1
+    local name=$2
+    printf "  Checking ${name}..."
+    if command -v "$cmd" &> /dev/null; then
+        printf "\r${G}✔ ${name} is installed${NC}          \n"
+        return 0
     else
-        print_error "Cannot install git automatically. Please install git manually."
-        exit 1
+        printf "\r${R}✖ ${name} is missing${NC}            \n"
+        return 1
     fi
-    check_cmd git
-fi
+}
 
-if ! check_cmd docker; then
-    echo -e "\n${YELLOW}Docker is required but not installed.${NC}"
-    read -p "  Do you want to install Docker automatically? (y/n): " install_docker
-    if [[ "$install_docker" =~ ^[Yy]$ ]]; then
-        print_info "Installing Docker (this may take a while)..."
+install_docker() {
+    echo -e "\n${Y}Docker is required but not installed.${NC}"
+    read -p "  Install Docker automatically? (y/n): " install_ans
+    if [[ "$install_ans" =~ ^[Yy]$ ]]; then
+        echo -e "${C}  Installing Docker...${NC}"
         curl -fsSL https://get.docker.com | sh > /dev/null 2>&1 &
-        spinner $!
-        
-        systemctl start docker
-        systemctl enable docker
-        print_success "Docker installed successfully"
+        show_spinner $!
+        systemctl start docker >/dev/null 2>&1
+        systemctl enable docker >/dev/null 2>&1
+        print_success "Docker installed"
     else
-        print_error "Docker is required to proceed. Exiting."
+        print_error "Aborted. Docker is required."
         exit 1
     fi
+}
+
+# --- Main Logic ---
+
+print_header
+
+if [ "$EUID" -ne 0 ]; then
+   echo -e "${Y}⚠  Note: You are not root. Sudo may be required.${NC}\n"
 fi
 
+# 1. System Check
+echo -e "${BOLD}1. System Check${NC}"
+check_dependency git "Git" || {
+    echo -e "${C}  Installing Git...${NC}"
+    if command -v apt-get &>/dev/null; then apt-get update -qq && apt-get install -y -qq git >/dev/null 2>&1
+    elif command -v yum &>/dev/null; then yum install -y -q git >/dev/null 2>&1
+    else print_error "Install git manually."; exit 1; fi
+    print_success "Git installed"
+}
+check_dependency docker "Docker" || install_docker
 echo ""
 
-# 3. Clone/Update Repository
+# 2. Repository
+echo -e "${BOLD}2. Project Setup${NC}"
 INSTALL_DIR="botforge"
-
 if [ -d "$INSTALL_DIR" ]; then
-    print_step "Updating Repository..."
+    echo -e "  Updating project..."
     cd "$INSTALL_DIR" || exit
     git pull origin main > /dev/null 2>&1
-    print_success "Repository updated"
+    print_success "Updated successfully"
 else
-    print_step "Cloning Repository..."
+    echo -e "  Cloning repository..."
     git clone https://github.com/Donkoev/botforge.git "$INSTALL_DIR" > /dev/null 2>&1
     cd "$INSTALL_DIR" || exit
-    print_success "Repository cloned into ./$INSTALL_DIR"
+    print_success "Cloned to ./$INSTALL_DIR"
 fi
-
 echo ""
 
-# 4. Configuration
-print_step "Configuration"
-
+# 3. Configuration
+echo -e "${BOLD}3. Configuration${NC}"
 if [ -f .env ]; then
-    print_info ".env file detected. "
-    read -p "  Do you want to overwrite it? (y/n) [n]: " overwrite
-    if [[ ! "$overwrite" =~ ^[Yy]$ ]]; then
-        print_success "Using existing configuration"
+    print_success "Configuration file (.env) found."
+    read -p "  Reconfigure? (y/N): " reconf
+    if [[ "$reconf" =~ ^[Yy]$ ]]; then
+        SKIP_CONFIG=0
+    else
         SKIP_CONFIG=1
     fi
+else
+    SKIP_CONFIG=0
 fi
 
-if [ -z "$SKIP_CONFIG" ]; then
-    echo -e "${DIM}Press Enter to use defaults [in brackets]${NC}"
-    echo ""
+if [ "$SKIP_CONFIG" -eq 0 ]; then
+    echo -e "  ${C}Press Enter to use defaults.${NC}"
     
-    # Input with defaults
-    read -p "  Domain or IP [localhost]: " DOMAIN
+    read -p "  Domain/IP [localhost]: " DOMAIN
     DOMAIN=${DOMAIN:-localhost}
 
     read -p "  Admin Username [admin]: " ADMIN_USER
     ADMIN_USER=${ADMIN_USER:-admin}
     
-    read -p "  Admin Password [admin]: " ADMIN_PASS
+    # Masked password input
+    read -s -p "  Admin Password [admin]: " ADMIN_PASS
     ADMIN_PASS=${ADMIN_PASS:-admin}
+    echo "" 
 
     # Generate secrets
-    DB_PASSWORD=$(openssl rand -hex 12)
-    SECRET_KEY=$(openssl rand -hex 32)
+    DB_PASS=$(openssl rand -hex 12)
+    JWT_SEC=$(openssl rand -hex 32)
     
-    # Write .env
     cat > .env <<EOL
-# Generated by install.sh
-
-# Database
+# Generated by install.sh v2
 POSTGRES_USER=postgres
-POSTGRES_PASSWORD=${DB_PASSWORD}
+POSTGRES_PASSWORD=${DB_PASS}
 POSTGRES_DB=botforge
-DATABASE_URL=postgresql+asyncpg://postgres:${DB_PASSWORD}@postgres/botforge
-
-# Redis
+DATABASE_URL=postgresql+asyncpg://postgres:${DB_PASS}@postgres/botforge
 REDIS_URL=redis://redis:6379/0
-
-# Security
-JWT_SECRET=${SECRET_KEY}
+JWT_SECRET=${JWT_SEC}
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
-
-# App
 DOMAIN=${DOMAIN}
-
-# Initial Admin
 ADMIN_USERNAME=${ADMIN_USER}
 ADMIN_PASSWORD=${ADMIN_PASS}
-
-# Nginx
 NGINX_PORT=80
 EOL
-    print_success "Configuration saved to .env"
+    print_success "Config saved"
 fi
-
 echo ""
 
-# 5. Build and Start
-print_step "Deployment"
-print_info "Building and starting containers... (this takes a moment)"
+# 4. Installation
+echo -e "${BOLD}4. Installation & Launch${NC}"
 
-docker compose up -d --build > /dev/null 2>&1 &
-spinner $!
+# Stop existing
+docker compose down > /dev/null 2>&1
 
-if [ $? -eq 0 ]; then
-    print_success "Container deployment successful!"
+echo -e "  ${C}Building and starting services...${NC}"
+# Simulate progress for better UX while actually running in background
+docker compose up -d --build > install_log.txt 2>&1 &
+PID=$!
+
+# Fake progress bar loop that waits for PID
+t=0
+while ps -p $PID > /dev/null; do
+    t=$((t+1))
+    if [ $t -gt 95 ]; then t=95; fi # Cap until done
+    draw_bar $t "Installing..."
+    sleep 0.5
+done
+wait $PID
+EXIT_CODE=$?
+
+draw_bar 100 "Done!        "
+echo ""
+
+if [ $EXIT_CODE -eq 0 ]; then
+    print_success "Deployed successfully!"
+    echo ""
+    echo -e "${Y}----------------------------------------${NC}"
+    echo -e "  ${BOLD}URL:${NC}      http://${DOMAIN}"
+    echo -e "  ${BOLD}Admin:${NC}    ${ADMIN_USER}"
+    echo -e "  ${BOLD}Password:${NC} <hidden>"
+    echo -e "${Y}----------------------------------------${NC}"
 else
-    print_error "Stubmlen upon an issue during deployment. Check 'docker compose logs'."
-    exit 1
+    print_error "Installation failed."
+    echo -e "Check 'install_log.txt' for details."
 fi
-
-echo ""
-echo "--------------------------------------------------------"
-echo -e "${GREEN}${BOLD}             Installation Complete!             ${NC}"
-echo "--------------------------------------------------------"
-echo ""
-echo -e "  ${BOLD}URL:${NC}      http://${DOMAIN}"
-echo -e "  ${BOLD}Check:${NC}    docker compose ps"
-echo ""
-echo -e "  ${BOLD}Admin:${NC}    ${ADMIN_USER}"
-echo -e "  ${BOLD}Password:${NC} ${ADMIN_PASS}"
 echo ""

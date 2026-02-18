@@ -54,7 +54,10 @@ class TrackingMiddleware(BaseMiddleware):
                     first_seen_at=datetime.utcnow(),
                     last_seen_at=datetime.utcnow()
                 ).on_conflict_do_update(
-                    index_elements=['telegram_id'], # Unique constraint
+                    constraint='uq_bot_user_telegram_source', # Use constraint name if possible, or index_elements
+                    # index_elements=['telegram_id', 'source_bot_id'], # This might require appropriate unique index
+                    # Better to use constraint name if we defined it, but for SQLite/PG generic support without migration tool knowledge:
+                    index_elements=['telegram_id', 'source_bot_id'],
                     set_=dict(
                         username=user.username,
                         first_name=user.first_name,
