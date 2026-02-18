@@ -2,7 +2,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, update
 from app.database import get_db
 from app.models.bot import Bot
 from app.schemas.bot import BotCreate, BotUpdate, BotResponse
@@ -17,7 +17,7 @@ async def get_bots(
     db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    result = await db.execute(select(Bot).order_by(Bot.id))
+    result = await db.execute(select(Bot).order_by(Bot.display_order, Bot.id))
     return result.scalars().all()
 
 @router.post("/", response_model=BotResponse)
@@ -143,3 +143,20 @@ async def stop_bot_endpoint(
     await db.commit()
     await bot_manager.stop_bot(id)
     return {"status": "stopped"}
+
+@router.post("/reorder")
+async def reorder_bots(
+    items: List[dict],  # List of {id: int, display_order: int}
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    # Expecting [{"id": 1, "display_order": 0}, {"id": 2, "display_order": 1}, ...]
+    for item in items:
+        bot_id = item.get("id")
+        order = item.get("display_order")
+        if bot_id is not None and order is not None:
+             await db.execute(
+                 update(Bot).where(Bot.id == bot_id).values(display_order=order)
+             )
+    await db.commit()
+    return {"status": "ok"}

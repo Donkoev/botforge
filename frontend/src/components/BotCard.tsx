@@ -6,7 +6,8 @@ import {
     SettingOutlined,
     PlayCircleOutlined,
     PauseCircleOutlined,
-    DeleteOutlined
+    DeleteOutlined,
+    HolderOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { Bot } from '../api/bots';
@@ -18,15 +19,26 @@ interface BotCardProps {
     onToggleStatus: (bot: Bot) => void;
     onDelete: (bot: Bot) => void;
     loading?: boolean;
+    dragHandleProps?: any; // Pass DnD props here
 }
 
-const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loading }) => {
+const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loading, dragHandleProps }) => {
     const navigate = useNavigate();
 
     return (
         <Card
             className="glass-card"
             bordered={false}
+            title={
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div {...dragHandleProps} style={{ cursor: 'grab', marginRight: 10, display: 'flex', alignItems: 'center', padding: '4px', borderRadius: '4px', color: 'rgba(255,255,255,0.4)' }} className="drag-handle">
+                        <HolderOutlined style={{ fontSize: 20 }} />
+                    </div>
+                    {/* Empty title content if needed, main content is in body */}
+                </div>
+            }
+            headStyle={{ padding: '0 16px', borderBottom: 'none', minHeight: 'auto', paddingTop: 12 }}
+            bodyStyle={{ paddingTop: 0 }}
             actions={[
                 <Tooltip title={bot.is_active ? "Остановить" : "Запустить"}>
                     <Button

@@ -19,6 +19,11 @@ class BotResponse(BotBase):
     is_active: bool
     created_at: datetime
     updated_at: datetime
+    display_order: int = 0
 
     class Config:
         from_attributes = True
+
+class BotReorder(BaseModel):
+    id: int
+    display_order: int

@@ -40,6 +40,9 @@ export const botsApi = {
     stop: async (id: number): Promise<void> => {
         await api.post(`/bots/${id}/stop`);
     },
+    reorder: async (items: { id: number; display_order: number }[]): Promise<void> => {
+        await api.post('/bots/reorder', items);
+    },
     // Templates
     getTemplates: async (botId: number): Promise<MessageTemplate[]> => {
         const response = await api.get<MessageTemplate[]>(`/bots/${botId}/messages/`);

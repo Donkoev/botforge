@@ -82,18 +82,37 @@ const BotsPage: React.FC = () => {
     const [draggedItem, setDraggedItem] = useState<number | null>(null);
 
     const onDragStart = (e: React.DragEvent, index: number) => {
+        // Check if the target is the drag handle
+        const target = e.target as HTMLElement;
+        const handle = target.closest('.drag-handle');
+
+        // If we are not clicking the handle, do not start drag
+        // Note: browser DnD behavior is tricky. If we put draggable on the container, 
+        // the whole container is draggable. We can modify the drag image or prevent default.
+        // Actually, the cleanest way in native DnD is to put draggable attribute ONLY on the handle?
+        // But then we only drag the handle element, not the card. 
+        // To drag the card visually but only trigger from handle:
+        // 1. draggable=true on container
+        // 2. in onDragStart: if (!e.target.closest('.drag-handle')) { e.preventDefault(); return; }
+
+        if (!handle) {
+            e.preventDefault();
+            return;
+        }
+
         setDraggedItem(index);
         e.dataTransfer.effectAllowed = 'move';
-        // Make ghost image invisible or use default
+
+        // Optional: Make the drag image the whole card if browser doesn't do it automatically due to deep click
+        // e.dataTransfer.setDragImage(e.currentTarget, 0, 0); 
     };
 
     const onDragOver = (e: React.DragEvent) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
-        // Optional: Swap on hover logic here for smoother UX
     };
 
-    const onDrop = (e: React.DragEvent, index: number) => {
+    const onDrop = async (e: React.DragEvent, index: number) => {
         e.preventDefault();
         if (draggedItem === null) return;
         if (draggedItem === index) return;
@@ -101,8 +120,18 @@ const BotsPage: React.FC = () => {
         const newBots = [...bots];
         const [movedItem] = newBots.splice(draggedItem, 1);
         newBots.splice(index, 0, movedItem);
+
         setBots(newBots);
         setDraggedItem(null);
+
+        // Prepare update for backend
+        const reorderData = newBots.map((b, i) => ({ id: b.id, display_order: i }));
+        try {
+            await botsApi.reorder(reorderData);
+        } catch (error) {
+            console.error('Failed to save order', error);
+            message.error('Ошибка сохранения порядка');
+        }
     };
 
     const handleDeleteClick = (bot: Bot) => {
@@ -112,9 +141,9 @@ const BotsPage: React.FC = () => {
             okText: 'Удалить',
             cancelText: 'Отмена',
             okType: 'danger',
-            className: 'glass-modal-confirm', // Ensure this class is in CSS
+            className: 'glass-modal-confirm',
             centered: true,
-            icon: <div style={{ color: '#ff4d4f', marginRight: 12, fontSize: 22 }}>⚠️</div>, // Custom icon if needed
+            icon: <div style={{ color: '#ff4d4f', marginRight: 12, fontSize: 22 }}>⚠️</div>,
             maskClosable: true,
             onOk: () => handleDelete(bot),
             cancelButtonProps: { size: 'large' },
@@ -153,17 +182,21 @@ const BotsPage: React.FC = () => {
                         <Col
                             key={bot.id}
                             xs={24} sm={24} md={12} lg={12} xl={8}
-                            draggable
-                            onDragStart={(e) => onDragStart(e, index)}
                             onDragOver={onDragOver}
                             onDrop={(e) => onDrop(e, index)}
-                            style={{ cursor: 'move' }}
                         >
-                            <BotCard
-                                bot={bot}
-                                onToggleStatus={handleToggleStatus}
-                                onDelete={handleDeleteClick}
-                            />
+                            <div
+                                draggable
+                                onDragStart={(e) => onDragStart(e, index)}
+                                style={{ height: '100%' }} // Ensure wrapper takes full height
+                            >
+                                <BotCard
+                                    bot={bot}
+                                    onToggleStatus={handleToggleStatus}
+                                    onDelete={handleDeleteClick}
+                                // Pass additional class or prop if needed, currently BotCard has .drag-handle
+                                />
+                            </div>
                         </Col>
                     ))}
                 </Row>
