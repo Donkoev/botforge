@@ -44,7 +44,7 @@ class TrackingMiddleware(BaseMiddleware):
 
             # Upsert BotUser
             try:
-                now = datetime.now(timezone.utc)
+                now = datetime.now(timezone.utc).replace(tzinfo=None)
                 stmt = insert(BotUser).values(
                     telegram_id=user.id,
                     username=user.username,

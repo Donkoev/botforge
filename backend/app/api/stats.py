@@ -16,7 +16,7 @@ async def get_stats_overview(
     db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     week_start = now - timedelta(days=7)
 
@@ -53,7 +53,7 @@ async def get_daily_stats(
 ):
     # Retrieve daily signups for the last N days
     # PostgreSQL specific date_trunc
-    start_date = datetime.now(timezone.utc) - timedelta(days=days)
+    start_date = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days)
     
     stmt = (
         select(

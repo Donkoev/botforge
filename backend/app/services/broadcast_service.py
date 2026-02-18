@@ -24,7 +24,7 @@ class BroadcastService:
             if not broadcast:
                 return
 
-            broadcast.started_at = datetime.now(timezone.utc)
+            broadcast.started_at = datetime.now(timezone.utc).replace(tzinfo=None)
 
             target_bots = broadcast.target_bots
             
@@ -108,7 +108,7 @@ class BroadcastService:
             broadcast.failed_count = total_failed
             if broadcast.status != "cancelled":
                 broadcast.status = "completed"
-                broadcast.completed_at = datetime.now(timezone.utc)
+                broadcast.completed_at = datetime.now(timezone.utc).replace(tzinfo=None)
             
             await db.commit()
 
