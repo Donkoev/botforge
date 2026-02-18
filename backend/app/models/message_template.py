@@ -13,8 +13,8 @@ class MessageTemplate(Base):
     text: Mapped[str] = mapped_column(Text, nullable=False)
     buttons: Mapped[list] = mapped_column(JSON, default=list) # [{text: "Btn", url: "http..."}]
     
-    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), server_onupdate=func.now(), default=func.now(), onupdate=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), server_default=func.now(), onupdate=func.now())
 
     # Связи
     bot = relationship("Bot", back_populates="templates")
