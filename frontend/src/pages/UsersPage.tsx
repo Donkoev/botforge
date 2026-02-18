@@ -60,17 +60,13 @@ const UsersPage: React.FC = () => {
     useEffect(() => {
         fetchUsers();
     }, [fetchUsers]);
-    // Should we fetch on searchText change? Or on Enter/Search click?
-    // Let's do fetch on specific action or debounce. For now, manual trigger or effect dependency.
-    // Adding searchText to dependency might cause many requests. Let's use a search button or 'onSearch' prop of Input.Search
 
     const handleTableChange = (newPagination: any) => {
         setPagination(newPagination);
     };
 
     const handleSearch = () => {
-        setPagination({ ...pagination, current: 1 }); // Reset to page 1
-        fetchUsers();
+        setPagination({ ...pagination, current: 1 });
     };
 
     const handleDeleteUser = async (userId: number) => {

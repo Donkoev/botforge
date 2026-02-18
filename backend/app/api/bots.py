@@ -7,7 +7,6 @@ from app.database import get_db
 from app.models.bot import Bot
 from app.schemas.bot import BotCreate, BotUpdate, BotResponse
 from app.api.auth import get_current_user
-# services import will be added later when implemented
 from app.services.bot_manager import bot_manager
 
 router = APIRouter(prefix="/bots", tags=["bots"])
@@ -31,15 +30,10 @@ async def create_bot(
     if result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Bot with this token already exists")
 
-    # In a real app, we would validate the token with Telegram API here.
-    # self.bot = Bot(token=token); await self.bot.get_me() ...
-
-    # Placeholder for get_me logic:
-    # Fetch bot info from Telegram
+    # Validate token with Telegram API
     try:
         from aiogram import Bot as AiogramBot
-        # Use a temporary bot instance to check token and get info
-        # We don't use default properties here as we just need get_me
+        # Verify and get bot info
         temp_bot = AiogramBot(token=bot_in.token)
         bot_info = await temp_bot.get_me()
         bot_username = bot_info.username
@@ -85,7 +79,6 @@ async def update_bot(
         bot.name = bot_update.name
     if bot_update.is_active is not None:
         bot.is_active = bot_update.is_active
-        # Logic to start/stop bot via BotManager should be triggered here or in separate endpoints
 
     await db.commit()
     await db.refresh(bot)
@@ -115,7 +108,6 @@ async def start_bot_endpoint(
     db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    # Integration with BotManager later
     result = await db.execute(select(Bot).where(Bot.id == id))
     bot = result.scalar_one_or_none()
     if not bot:
@@ -123,7 +115,6 @@ async def start_bot_endpoint(
     
     bot.is_active = True
     await db.commit()
-    # bot_manager.start_bot(id)
     await bot_manager.start_bot(id)
     return {"status": "started"}
 
@@ -133,7 +124,6 @@ async def stop_bot_endpoint(
     db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    # Integration with BotManager later
     result = await db.execute(select(Bot).where(Bot.id == id))
     bot = result.scalar_one_or_none()
     if not bot:

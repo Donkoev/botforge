@@ -25,21 +25,16 @@ const BotSettingsPage: React.FC = () => {
         if (!id) return;
         try {
             setLoading(true);
-            const data = await botsApi.getAll(); // Ideally getOne endpoint, but we reused logic
-            const found = data.find(b => b.id === Number(id));
-            if (found) {
-                setBot(found);
-                form.setFieldsValue({
-                    name: found.name,
-                    is_active: Boolean(found.is_active)
-                });
-            } else {
-                message.error('Бот не найден');
-                navigate('/bots');
-            }
+            const found = await botsApi.getOne(Number(id));
+            setBot(found);
+            form.setFieldsValue({
+                name: found.name,
+                is_active: Boolean(found.is_active)
+            });
         } catch (error) {
             console.error(error);
-            message.error('Ошибка при загрузке');
+            message.error('Бот не найден');
+            navigate('/bots');
         } finally {
             setLoading(false);
         }

@@ -1,5 +1,5 @@
 # backend/app/models/bot_user.py
-from sqlalchemy import String, Integer, Boolean, DateTime, BigInteger, ForeignKey, UniqueConstraint
+from sqlalchemy import String, Integer, Boolean, DateTime, BigInteger, ForeignKey, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from app.database import Base
@@ -20,8 +20,8 @@ class BotUser(Base):
     source_bot_id: Mapped[int] = mapped_column(Integer, ForeignKey("bots.id"), nullable=False)
     
     is_blocked: Mapped[bool] = mapped_column(Boolean, default=False)
-    first_seen_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    last_seen_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    first_seen_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
     # Связи
     source_bot = relationship("Bot", back_populates="bot_users")

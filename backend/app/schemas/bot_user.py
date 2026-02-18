@@ -2,17 +2,8 @@
 from pydantic import BaseModel
 from datetime import datetime
 
-class BotUserBase(BaseModel):
-    telegram_id: int
-    username: str | None = None
-    first_name: str | None = None
-    last_name: str | None = None
-    language_code: str | None = None
-    source_bot_id: int
-    is_blocked: bool = False
-
 class GroupedBotUserResponse(BaseModel):
-    id: int # ID of the LATEST interaction or main record
+    id: int
     telegram_id: int
     username: str | None = None
     first_name: str | None = None
@@ -21,7 +12,7 @@ class GroupedBotUserResponse(BaseModel):
     first_seen_at: datetime
     last_seen_at: datetime
     is_blocked: bool = False
-    sources: list[str] = [] # List of Bot Names
+    sources: list[str] = []
 
     class Config:
         from_attributes = True

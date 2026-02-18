@@ -66,10 +66,10 @@ async def start_broadcast(
         raise HTTPException(status_code=400, detail="Broadcast already started or completed")
 
     bc.status = "sending"
-    # bc.started_at = datetime.utcnow() # handled in service
+
     await db.commit()
     
-    # Trigger background service here
+
     await broadcast_service.start_broadcast(id)
     
     return {"status": "started"}

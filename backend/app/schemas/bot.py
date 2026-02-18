@@ -13,8 +13,9 @@ class BotUpdate(BaseModel):
     name: str | None = None
     is_active: bool | None = None
 
-class BotResponse(BotBase):
+class BotResponse(BaseModel):
     id: int
+    name: str
     bot_username: str
     is_active: bool
     created_at: datetime
@@ -23,7 +24,3 @@ class BotResponse(BotBase):
 
     class Config:
         from_attributes = True
-
-class BotReorder(BaseModel):
-    id: int
-    display_order: int

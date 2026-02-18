@@ -1,5 +1,5 @@
 # backend/app/models/message_template.py
-from sqlalchemy import String, Integer, Text, DateTime, ForeignKey, JSON
+from sqlalchemy import String, Integer, Text, DateTime, ForeignKey, JSON, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from app.database import Base
@@ -13,8 +13,8 @@ class MessageTemplate(Base):
     text: Mapped[str] = mapped_column(Text, nullable=False)
     buttons: Mapped[list] = mapped_column(JSON, default=list) # [{text: "Btn", url: "http..."}]
     
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Связи
     bot = relationship("Bot", back_populates="templates")

@@ -7,31 +7,9 @@ from app.database import AsyncSessionLocal
 from app.models.bot import Bot as BotModel
 from app.models.message_template import MessageTemplate
 
-# We will use a function to create a new router for each bot
-# to avoid "Router is already attached" error.
 
 async def cmd_start(message: Message):
-    # bot_user is injected by TrackingMiddleware
-    # or we can just use message.from_user
-    
-    # Logic to find the correct welcome message
-    # We need to know WHICH bot received this.
-    # In aiogram 3, `bot` instance is available in context, and we can get token.
-    # But finding the DB record ID from token every time is expensive?
-    # Middleware can reuse the bot_id found during tracking.
-    
-    # Let's assume Middleware attaches `source_bot_id` to `data`
-    # Warning: Middleware signature needs to be checked.
-    pass 
-    # Actually, let's implement the logic here for simplicity if middleware only does tracking.
-    
-    # Note: `bot_user` argument comes from middleware if we pass it in data.
-    # See middleware implementation below.
-
-    # 1. Get current bot token to identify source
-    # properties of 'bot' are context aware in handlers usually
     bot_token = message.bot.token
-    
     language_code = message.from_user.language_code
     
     async with AsyncSessionLocal() as db:
@@ -40,8 +18,7 @@ async def cmd_start(message: Message):
         if not bot:
             return
 
-        # Find template
-        # Try exact match language -> then fallback "ru" -> then any
+        # Find template: exact language match → fallback "ru" → any available
         template = await db.scalar(
             select(MessageTemplate)
             .where(MessageTemplate.bot_id == bot.id)
@@ -49,7 +26,6 @@ async def cmd_start(message: Message):
         )
         
         if not template:
-            # Fallback to RU
             template = await db.scalar(
                 select(MessageTemplate)
                 .where(MessageTemplate.bot_id == bot.id)
@@ -57,7 +33,6 @@ async def cmd_start(message: Message):
             )
             
         if not template:
-            # Fallback to first available if RU missing
             template = await db.scalar(
                 select(MessageTemplate)
                 .where(MessageTemplate.bot_id == bot.id)
@@ -65,10 +40,10 @@ async def cmd_start(message: Message):
             )
 
         if not template:
-            await message.answer("Welcome!") # Absolute fallback
+            await message.answer("Welcome!")
             return
 
-        # Prepare keyboard
+        # Prepare inline keyboard
         markup = None
         if template.buttons:
             markup = InlineKeyboardMarkup(inline_keyboard=[

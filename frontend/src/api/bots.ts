@@ -4,10 +4,11 @@ import { api } from './client';
 export interface Bot {
     id: number;
     name: string;
-    token: string; // Hidden in response? Usually yes, but schema showed it.
     bot_username: string;
     is_active: boolean;
     created_at: string;
+    updated_at: string;
+    display_order: number;
 }
 
 export interface MessageTemplate {
@@ -21,6 +22,10 @@ export interface MessageTemplate {
 export const botsApi = {
     getAll: async (): Promise<Bot[]> => {
         const response = await api.get<Bot[]>('/bots/');
+        return response.data;
+    },
+    getOne: async (id: number): Promise<Bot> => {
+        const response = await api.get<Bot>(`/bots/${id}`);
         return response.data;
     },
     create: async (data: { name: string; token: string }): Promise<Bot> => {

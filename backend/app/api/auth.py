@@ -1,5 +1,5 @@
 # backend/app/api/auth.py
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -11,7 +11,7 @@ from passlib.context import CryptContext
 from app.database import get_db
 from app.config import settings
 from app.models.user import User
-from app.schemas.auth import Token, UserLogin, TokenData
+from app.schemas.auth import Token, TokenData
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -28,9 +28,9 @@ def get_password_hash(password):
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.ALGORITHM)
     return encoded_jwt
@@ -59,13 +59,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: As
 @router.post("/login", response_model=Token)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: AsyncSession = Depends(get_db)):
     try:
-        # Check if this is the first run/setup (create admin if needed)
-        
         result = await db.execute(select(User).where(User.username == form_data.username))
         user = result.scalar_one_or_none()
         
         if not user:
-             # Auto-create admin strictly from env vars for first login convenience
+             # Auto-create admin from env vars on first login
             if form_data.username == settings.ADMIN_USERNAME and form_data.password == settings.ADMIN_PASSWORD:
                 try:
                     hashed = get_password_hash(settings.ADMIN_PASSWORD)

@@ -10,7 +10,6 @@ import {
     LogoutOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
-    UserOutlined as UserIcon
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -172,7 +171,7 @@ const AppLayout: React.FC = () => {
                             background: 'rgba(30, 30, 35, 0.4)'
                         }}>
                             <Avatar
-                                icon={<UserIcon />}
+                                icon={<UserOutlined />}
                                 style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
                             />
                             <span style={{ color: 'white', fontWeight: 500, fontFamily: "'Outfit', sans-serif" }}>Администратор</span>

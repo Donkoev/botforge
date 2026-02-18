@@ -109,7 +109,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loadin
                                 {bot.is_active ? 'Активен' : 'Остановлен'}
                             </Tag>
                         </div>
-                        <Text type="secondary" copyable={{ text: bot.token }} style={{ fontSize: 13, display: 'block' }}>
+                        <Text type="secondary" style={{ fontSize: 13, display: 'block' }}>
                             @{bot.bot_username}
                         </Text>
                     </div>

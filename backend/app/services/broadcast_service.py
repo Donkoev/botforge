@@ -1,8 +1,8 @@
 # backend/app/services/broadcast_service.py
 import asyncio
 import logging
-from datetime import datetime
-from sqlalchemy import select, update
+from datetime import datetime, timezone
+from sqlalchemy import select, update, func
 from aiogram import Bot
 from aiogram.exceptions import TelegramRetryAfter, TelegramForbiddenError
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -24,18 +24,22 @@ class BroadcastService:
             if not broadcast:
                 return
 
-            broadcast.started_at = datetime.utcnow()
-            await db.commit()
+            broadcast.started_at = datetime.now(timezone.utc)
 
             target_bots = broadcast.target_bots
-            # If target_bots is empty, select all active bots (or just all bots)
-            # Logic: list of bot_ids. If empty list -> all bots.
             
             stmt = select(BotModel)
             if target_bots:
                  stmt = stmt.where(BotModel.id.in_(target_bots))
             
             bots = (await db.scalars(stmt)).all()
+
+            # Count total users that will receive the broadcast
+            count_query = select(func.count(BotUser.id)).where(BotUser.is_blocked == False)
+            if target_bots:
+                count_query = count_query.where(BotUser.source_bot_id.in_([b.id for b in bots]))
+            broadcast.total_users = (await db.scalar(count_query)) or 0
+            await db.commit()
             
             total_sent = 0
             total_failed = 0
@@ -54,12 +58,6 @@ class BroadcastService:
                     logger.error(f"Invalid token for bot {bot_model.id}: {e}")
                     continue
 
-                # Stream users to reduce memory usage
-                # We use a new transaction or the same session? 
-                # AsyncSession can stream.
-                
-                # We need to process in chunks to allow DB updates for progress
-                # Standard cursor execution
                 users_result = await db.stream(
                     select(BotUser).where(
                         BotUser.source_bot_id == bot_model.id,
@@ -76,13 +74,11 @@ class BroadcastService:
                         total_sent += 1
                     except TelegramForbiddenError:
                         user.is_blocked = True
-                        db.add(user) # Mark as blocked
+                        db.add(user)
                         total_failed += 1
                     except TelegramRetryAfter as e:
                         logger.warning(f"Flood limit exceeded. Sleep {e.retry_after}")
                         await asyncio.sleep(e.retry_after)
-                        # Retry once? Or skip? For simplicity, we skip or retry logic here
-                        # Let's try to resend once
                         try:
                             await self._send_message(bot, user.telegram_id, broadcast, markup)
                             total_sent += 1
@@ -97,12 +93,11 @@ class BroadcastService:
                         broadcast.sent_count = total_sent
                         broadcast.failed_count = total_failed
                         await db.commit()
-                        # Re-fetch broadcast to check status (if cancelled by user)
                         await db.refresh(broadcast)
                         if broadcast.status == "cancelled":
                             break
                     
-                    await asyncio.sleep(0.05) # Rate limiting
+                    await asyncio.sleep(0.05)  # Rate limiting
 
                 await bot.session.close()
                 if broadcast.status == "cancelled":
@@ -113,7 +108,7 @@ class BroadcastService:
             broadcast.failed_count = total_failed
             if broadcast.status != "cancelled":
                 broadcast.status = "completed"
-                broadcast.completed_at = datetime.utcnow()
+                broadcast.completed_at = datetime.now(timezone.utc)
             
             await db.commit()
 
