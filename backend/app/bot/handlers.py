@@ -7,9 +7,9 @@ from app.database import AsyncSessionLocal
 from app.models.bot import Bot as BotModel
 from app.models.message_template import MessageTemplate
 
-router = Router()
+# We will use a function to create a new router for each bot
+# to avoid "Router is already attached" error.
 
-@router.message(CommandStart())
 async def cmd_start(message: Message):
     # bot_user is injected by TrackingMiddleware
     # or we can just use message.from_user
@@ -76,3 +76,8 @@ async def cmd_start(message: Message):
             ])
             
         await message.answer(template.text, reply_markup=markup)
+
+def create_main_router() -> Router:
+    router = Router()
+    router.message.register(cmd_start, CommandStart())
+    return router

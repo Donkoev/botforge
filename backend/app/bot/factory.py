@@ -2,7 +2,7 @@
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
-from app.bot.handlers import router as main_router
+from app.bot.handlers import create_main_router
 from app.bot.middlewares import TrackingMiddleware
 
 def create_bot(token: str) -> Bot:
@@ -16,7 +16,7 @@ def create_dispatcher() -> Dispatcher:
     dp.message.outer_middleware(TrackingMiddleware())
     dp.callback_query.outer_middleware(TrackingMiddleware())
     
-    # Register routers
-    dp.include_router(main_router)
+    # Register routers - Create FRESH router for each dispatcher
+    dp.include_router(create_main_router())
     
     return dp
