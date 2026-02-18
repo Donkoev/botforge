@@ -81,17 +81,62 @@ const BotsPage: React.FC = () => {
 
     const [draggedItem, setDraggedItem] = useState<number | null>(null);
 
+    // State for Custom Drag Ghost
+    const [draggedBot, setDraggedBot] = useState<Bot | null>(null);
+    const ghostRef = React.useRef<HTMLDivElement>(null);
+    const [ghostSize, setGhostSize] = useState({ width: 0, height: 0 });
+
     const onDragStart = (e: React.DragEvent, index: number) => {
+        const target = e.target as HTMLElement;
+        const handle = target.closest('.drag-handle');
+
+        if (!handle) {
+            e.preventDefault();
+            return;
+        }
+
         setDraggedItem(index);
+        setDraggedBot(bots[index]);
         e.dataTransfer.effectAllowed = 'move';
 
-        // Use the card wrapper as the drag image
-        // handle -> div.drag-handle -> div.ant-card-body -> div.ant-card -> div (wrapper) -> div.ant-col
-        // We want the Col or the wrapper div.
-        const target = e.target as HTMLElement;
-        const cardWrapper = target.closest('.ant-col');
-        if (cardWrapper) {
-            e.dataTransfer.setDragImage(cardWrapper, 0, 0);
+        // Hide default drag image
+        const img = new Image();
+        img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+        e.dataTransfer.setDragImage(img, 0, 0);
+
+        // Capture size
+        const cardCol = target.closest('.ant-col');
+        if (cardCol) {
+            const rect = cardCol.getBoundingClientRect();
+            setGhostSize({ width: rect.width, height: rect.height });
+            // Initial position sets
+            if (ghostRef.current) {
+                ghostRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+                ghostRef.current.style.opacity = '1';
+            }
+        }
+    };
+
+    const onDrag = (e: React.DragEvent) => {
+        // Update ghost position
+        if (e.clientX === 0 && e.clientY === 0) return; // Ignore invalid end coordinates
+        if (ghostRef.current) {
+            // Center the ghost on cursor or offset? 
+            // Usually cursor on handle. Let's act like cursor is top-left of transparency, 
+            // but for better visual let's offset slightly so mouse is inside the card.
+            // But strict following is simpler.
+            // Let's rely on e.clientX/Y.
+            // Note: We might want some offset so we can see the drop target?
+            // "pointer-events: none" on ghost solves drop target blocking.
+            ghostRef.current.style.transform = `translate(${e.clientX + 10}px, ${e.clientY + 10}px)`;
+        }
+    };
+
+    const onDragEnd = () => {
+        setDraggedItem(null);
+        setDraggedBot(null);
+        if (ghostRef.current) {
+            ghostRef.current.style.opacity = '0';
         }
     };
 
@@ -102,6 +147,8 @@ const BotsPage: React.FC = () => {
 
     const onDrop = async (e: React.DragEvent, index: number) => {
         e.preventDefault();
+        onDragEnd(); // Ensure cleanup
+
         if (draggedItem === null) return;
         if (draggedItem === index) return;
 
@@ -110,7 +157,6 @@ const BotsPage: React.FC = () => {
         newBots.splice(index, 0, movedItem);
 
         setBots(newBots);
-        setDraggedItem(null);
 
         // Prepare update for backend
         const reorderData = newBots.map((b, i) => ({ id: b.id, display_order: i }));
@@ -141,6 +187,34 @@ const BotsPage: React.FC = () => {
 
     return (
         <div>
+            {/* Custom Drag Ghost */}
+            <div
+                ref={ghostRef}
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: ghostSize.width,
+                    pointerEvents: 'none',
+                    zIndex: 9999,
+                    opacity: 0, // Hidden until drag start
+                    transition: 'opacity 0.1s',
+                    // Optional: slight rotation or scale for "lifted" effect
+                    transformOrigin: 'top left'
+                }}
+            >
+                {draggedBot && (
+                    <div style={{ transform: 'rotate(2deg) scale(1.02)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
+                        <BotCard
+                            bot={draggedBot}
+                            onToggleStatus={() => { }} // Dummy
+                            onDelete={() => { }} // Dummy
+                        // We can render without handle or with handle, doesn't matter much.
+                        />
+                    </div>
+                )}
+            </div>
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
                 <div>
                     <Title level={2} style={{ margin: 0, fontSize: 28 }}>Боты</Title>
@@ -173,14 +247,17 @@ const BotsPage: React.FC = () => {
                             onDragOver={onDragOver}
                             onDrop={(e) => onDrop(e, index)}
                         >
-                            <div style={{ height: '100%' }}>
+                            <div style={{ height: '100%', opacity: draggedItem === index ? 0.3 : 1, transition: 'opacity 0.2s' }}>
+                                {/* Dim the source item to indicate it's moving */}
                                 <BotCard
                                     bot={bot}
                                     onToggleStatus={handleToggleStatus}
                                     onDelete={handleDeleteClick}
                                     dragHandleProps={{
                                         draggable: true,
-                                        onDragStart: (e: React.DragEvent) => onDragStart(e, index)
+                                        onDragStart: (e: React.DragEvent) => onDragStart(e, index),
+                                        onDrag: onDrag, // Listen to drag update
+                                        onDragEnd: onDragEnd
                                     }}
                                 />
                             </div>
