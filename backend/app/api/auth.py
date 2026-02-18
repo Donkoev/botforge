@@ -58,50 +58,54 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: As
 
 @router.post("/login", response_model=Token)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: AsyncSession = Depends(get_db)):
-    # Check if this is the first run/setup (create admin if needed) - simplified
-    # In real app, admin should be created via seed script or manually
-    # Here we just check credentials against DB
-    
-    # Quick hack to ensure default admin exists if DB is empty - optional, but helpful
-    # For now, let's stick to standard logic. User must be seeded or created.
-    # Actually, let's auto-create admin if it matches config credentials and doesn't exist?
-    # No, strict to spec. Spec says "User (admin panel user)".
-    
-    result = await db.execute(select(User).where(User.username == form_data.username))
-    user = result.scalar_one_or_none()
-    
-    if not user:
-         # Auto-create admin strictly from env vars for first login convenience (common in small setups)
-        if form_data.username == settings.ADMIN_USERNAME and form_data.password == settings.ADMIN_PASSWORD:
-            # We don't save to DB here to avoid concurrency issues, but we could.
-            # Ideally, seed the DB. For now, return error if not in DB, 
-            # UNLESS we want to support "env var admin" as a fallback or bootstrap.
-            # Let's bootstrap it if missing.
-            hashed = get_password_hash(settings.ADMIN_PASSWORD)
-            new_admin = User(username=settings.ADMIN_USERNAME, password_hash=hashed)
-            db.add(new_admin)
-            await db.commit()
-            await db.refresh(new_admin)
-            user = new_admin
+    try:
+        # Check if this is the first run/setup (create admin if needed)
+        
+        result = await db.execute(select(User).where(User.username == form_data.username))
+        user = result.scalar_one_or_none()
+        
+        if not user:
+             # Auto-create admin strictly from env vars for first login convenience
+            if form_data.username == settings.ADMIN_USERNAME and form_data.password == settings.ADMIN_PASSWORD:
+                try:
+                    hashed = get_password_hash(settings.ADMIN_PASSWORD)
+                    new_admin = User(username=settings.ADMIN_USERNAME, password_hash=hashed)
+                    db.add(new_admin)
+                    await db.commit()
+                    await db.refresh(new_admin)
+                    user = new_admin
+                except Exception as e:
+                    import traceback
+                    print(f"Error creating admin: {e}")
+                    traceback.print_exc()
+                    raise HTTPException(status_code=500, detail=f"Failed to create admin: {str(e)}")
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Incorrect username or password",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
         else:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect username or password",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-    else:
-        if not verify_password(form_data.password, user.password_hash):
-             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect username or password",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            if not verify_password(form_data.password, user.password_hash):
+                 raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Incorrect username or password",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
 
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": user.username}, expires_delta=access_token_expires
+        )
+        return {"access_token": access_token, "token_type": "bearer"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        print(f"Login Unhandled Error: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Login Error: {str(e)}")
 
 @router.get("/me", response_model=TokenData)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]):
