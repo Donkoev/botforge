@@ -34,6 +34,8 @@ class TrackingMiddleware(BaseMiddleware):
             logger.warning("TrackingMiddleware: No bot instance found in data")
             return await handler(event, data)
 
+        logger.info(f"TrackingMiddleware: Processing update for bot token ending in ...{bot.token[-5:]}")
+
         async with AsyncSessionLocal() as db:
             # Resolve Bot DB ID
             # In high load, cache this {token -> id} mapping
@@ -41,6 +43,8 @@ class TrackingMiddleware(BaseMiddleware):
             if not bot_model:
                 logger.warning(f"TrackingMiddleware: Unknown bot token {bot.token}")
                 return await handler(event, data)
+
+            logger.info(f"TrackingMiddleware: Resolved Bot ID {bot_model.id} for user {user.id}")
 
             # Upsert BotUser
             try:

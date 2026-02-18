@@ -33,19 +33,26 @@ class BotManager:
             try:
                 # Initialize aiogram bot and dispatcher
                 # We need to import handlers inside factory or here to register them
-                bot = create_bot(bot_data.token)
+                bot_instance = create_bot(bot_data.token)
                 dp = create_dispatcher()
                 
+                # Verify identity
+                bot_info = await bot_instance.get_me()
+                logger.info(f"Bot {bot_id} verified as @{bot_info.username} (ID: {bot_info.id})")
+
                 # Start polling in a separate task
+                # Important: handle_signals=False is crucial when running multiple bots 
                 task = asyncio.create_task(
-                    dp.start_polling(bot, handle_signals=False, polling_timeout=30)
+                    dp.start_polling(bot_instance, handle_signals=False, polling_timeout=30)
                 )
                 
                 self.active_bots[bot_id] = task
-                logger.info(f"Bot {bot_id} started")
+                logger.info(f"Bot {bot_id} (Tasks: {list(self.active_bots.keys())}) polling started.")
                 
             except Exception as e:
                 logger.error(f"Failed to start bot {bot_id}: {e}")
+                import traceback
+                traceback.print_exc()
 
     async def stop_bot(self, bot_id: int):
         task = self.active_bots.get(bot_id)
