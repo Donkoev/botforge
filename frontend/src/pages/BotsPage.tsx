@@ -43,7 +43,7 @@ const SortableBotCard: React.FC<SortableBotCardProps> = ({ bot, onToggleStatus, 
     } = useSortable({
         id: bot.id,
         transition: {
-            duration: 350,
+            duration: 450,
             easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
         }
     });
@@ -252,7 +252,7 @@ const BotsPage: React.FC = () => {
                     </SortableContext>
 
                     <DragOverlay adjustScale={false} dropAnimation={{
-                        duration: 300,
+                        duration: 400,
                         easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
                     }}>
                         {activeBot ? (
