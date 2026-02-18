@@ -6,8 +6,7 @@ import {
     SettingOutlined,
     PlayCircleOutlined,
     PauseCircleOutlined,
-    DeleteOutlined,
-    HolderOutlined
+    DeleteOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { Bot } from '../api/bots';
@@ -27,18 +26,9 @@ const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loadin
 
     return (
         <Card
-            className="glass-card"
+            className="glass-card generic-transition"
             bordered={false}
-            title={
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div {...dragHandleProps} style={{ cursor: 'grab', marginRight: 10, display: 'flex', alignItems: 'center', padding: '4px', borderRadius: '4px', color: 'rgba(255,255,255,0.4)' }} className="drag-handle">
-                        <HolderOutlined style={{ fontSize: 20 }} />
-                    </div>
-                    {/* Empty title content if needed, main content is in body */}
-                </div>
-            }
-            headStyle={{ padding: '0 16px', borderBottom: 'none', minHeight: 'auto', paddingTop: 12 }}
-            bodyStyle={{ paddingTop: 0 }}
+            bodyStyle={{ padding: 20, paddingTop: 32, position: 'relative' }} // Added padding top for handle
             actions={[
                 <Tooltip title={bot.is_active ? "Остановить" : "Запустить"}>
                     <Button
@@ -68,6 +58,31 @@ const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loadin
                 </Tooltip>
             ]}
         >
+            {/* Drag Handle - 2x3 Dots */}
+            <div
+                className="drag-handle"
+                {...dragHandleProps}
+                style={{
+                    position: 'absolute',
+                    top: 12,
+                    left: 12,
+                    cursor: 'grab',
+                    padding: '4px',
+                    borderRadius: '4px',
+                    color: 'rgba(255,255,255,0.2)',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    width: 20,
+                    height: 24,
+                    gap: 3,
+                    zIndex: 10
+                }}
+            >
+                {[...Array(6)].map((_, i) => (
+                    <div key={i} style={{ width: 4, height: 4, background: 'currentColor', borderRadius: '50%' }} />
+                ))}
+            </div>
+
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
                     <div style={{

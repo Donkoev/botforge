@@ -86,15 +86,6 @@ const BotsPage: React.FC = () => {
         const target = e.target as HTMLElement;
         const handle = target.closest('.drag-handle');
 
-        // If we are not clicking the handle, do not start drag
-        // Note: browser DnD behavior is tricky. If we put draggable on the container, 
-        // the whole container is draggable. We can modify the drag image or prevent default.
-        // Actually, the cleanest way in native DnD is to put draggable attribute ONLY on the handle?
-        // But then we only drag the handle element, not the card. 
-        // To drag the card visually but only trigger from handle:
-        // 1. draggable=true on container
-        // 2. in onDragStart: if (!e.target.closest('.drag-handle')) { e.preventDefault(); return; }
-
         if (!handle) {
             e.preventDefault();
             return;
@@ -103,8 +94,8 @@ const BotsPage: React.FC = () => {
         setDraggedItem(index);
         e.dataTransfer.effectAllowed = 'move';
 
-        // Optional: Make the drag image the whole card if browser doesn't do it automatically due to deep click
-        // e.dataTransfer.setDragImage(e.currentTarget, 0, 0); 
+        // Use the card element (the handler's parent's parent usually, or specific ID) as drag image if needed
+        // but default usually works if we drag the container.
     };
 
     const onDragOver = (e: React.DragEvent) => {
