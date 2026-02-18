@@ -1,5 +1,5 @@
-# backend/app/main.py
 from contextlib import asynccontextmanager
+import asyncio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import auth, bots, bot_users, messages, broadcast, stats
@@ -17,20 +17,35 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    MAX_RETRIES = 5
+    RETRY_DELAY = 5
+    
+    for attempt in range(MAX_RETRIES):
+        try:
+            # Startup: Create tables if they don't exist
+            logger.info(f"Connecting to database (Attempt {attempt + 1}/{MAX_RETRIES})...")
+            async with engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            logger.info("Database tables created.")
+            break
+        except Exception as e:
+            logger.error(f"Database connection failed: {e}")
+            if attempt < MAX_RETRIES - 1:
+                logger.info(f"Retrying in {RETRY_DELAY} seconds...")
+                await asyncio.sleep(RETRY_DELAY)
+            else:
+                logger.error("Could not connect to database after multiple attempts.")
+                # We don't raise here to allow the app to start (e.g. for health checks that don't depend on DB)
+                # But realistically, the app is broken without DB.
+    
     try:
-        # Startup: Create tables if they don't exist
-        logger.info("Creating database tables...")
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        logger.info("Database tables created.")
-        
         # Startup: Start all active bots
         logger.info("Starting active bots...")
         await bot_manager.start_all_active_bots()
         logger.info("Active bots started.")
     except Exception as e:
-        logger.error(f"Error during startup: {e}")
-        # We don't raise here to allow the app to start even if DB/Bots fail
+         logger.error(f"Error starting bots: {e}")
+
     
     yield
     # Shutdown: Stop all bots (optional, as tasks are cancelled on loop exit usually)
