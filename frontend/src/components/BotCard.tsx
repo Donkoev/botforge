@@ -32,7 +32,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loadin
                     <Button
                         type="text"
                         className="bot-action-btn"
-                        icon={bot.is_active ? <PauseCircleOutlined style={{ fontSize: 18 }} /> : <PlayCircleOutlined style={{ fontSize: 18 }} />}
+                        icon={bot.is_active ? <PauseCircleOutlined style={{ fontSize: 18, color: '#ff4d4f' }} /> : <PlayCircleOutlined style={{ fontSize: 18, color: '#52c41a' }} />}
                         onClick={() => onToggleStatus(bot)}
                         loading={loading}
                     />

@@ -1,17 +1,20 @@
 // frontend/src/components/MessageEditor.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useImperativeHandle, forwardRef } from 'react';
 import { Tabs, Form, Input, Button, Card, Space, message, Popconfirm } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { botsApi, MessageTemplate } from '../api/bots';
+
+export interface MessageEditorRef {
+    save: () => Promise<void>;
+}
 
 interface MessageEditorProps {
     botId: number;
 }
 
-const MessageEditor: React.FC<MessageEditorProps> = ({ botId }) => {
+const MessageEditor = forwardRef<MessageEditorRef, MessageEditorProps>(({ botId }, ref) => {
     const [templates, setTemplates] = useState<MessageTemplate[]>([]);
     const [activeLang, setActiveLang] = useState('ru');
-    const [loading, setLoading] = useState(false);
     const [form] = Form.useForm();
 
     // New language state
@@ -20,18 +23,12 @@ const MessageEditor: React.FC<MessageEditorProps> = ({ botId }) => {
 
     const fetchTemplates = React.useCallback(async () => {
         try {
-            setLoading(true);
             const data = await botsApi.getTemplates(botId);
             setTemplates(data);
-
-            setTemplates(data);
-            // Removed auto-switch logic to allow creating new languages without reset
         } catch (error) {
             message.error('Ошибка загрузки шаблонов');
-        } finally {
-            setLoading(false);
         }
-    }, [botId, activeLang]);
+    }, [botId]);
 
     useEffect(() => {
         fetchTemplates();
@@ -50,34 +47,34 @@ const MessageEditor: React.FC<MessageEditorProps> = ({ botId }) => {
         }
     }, [activeLang, templates, form]);
 
-    const onFinish = async (values: any) => {
-        try {
-            setLoading(true);
-            const tmpl = templates.find(t => t.language_code === activeLang);
+    useImperativeHandle(ref, () => ({
+        save: async () => {
+            try {
+                // Validate form first
+                const values = await form.validateFields();
+                const tmpl = templates.find(t => t.language_code === activeLang);
 
-            const payload = {
-                language_code: activeLang,
-                text: values.text,
-                buttons: values.buttons || []
-            };
+                const payload = {
+                    language_code: activeLang,
+                    text: values.text,
+                    buttons: values.buttons || []
+                };
 
-            if (tmpl) {
-                // Update
-                await botsApi.updateTemplate(botId, tmpl.id, payload);
-                message.success('Шаблон обновлен');
-            } else {
-                // Create
-                await botsApi.createTemplate(botId, payload);
-                message.success('Шаблон создан');
+                if (tmpl) {
+                    // Update
+                    await botsApi.updateTemplate(botId, tmpl.id, payload);
+                } else {
+                    // Create
+                    await botsApi.createTemplate(botId, payload);
+                }
+                await fetchTemplates();
+                // message.success('Template saved'); // Parent will show success
+            } catch (error: any) {
+                console.error("Template save error:", error);
+                throw error; // Re-throw to let parent know
             }
-            await fetchTemplates();
-        } catch (error: any) {
-            console.error(error);
-            message.error('Ошибка сохранения');
-        } finally {
-            setLoading(false);
         }
-    };
+    }));
 
     const handleDeleteTemplate = async () => {
         const tmpl = templates.find(t => t.language_code === activeLang);
@@ -148,7 +145,6 @@ const MessageEditor: React.FC<MessageEditorProps> = ({ botId }) => {
             <Form
                 form={form}
                 layout="vertical"
-                onFinish={onFinish}
                 style={{ marginTop: 16 }}
             >
                 <Form.Item
@@ -196,15 +192,11 @@ const MessageEditor: React.FC<MessageEditorProps> = ({ botId }) => {
                             <Button danger>Удалить перевод</Button>
                         </Popconfirm>
                     )}
-                    <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                        <Button type="primary" htmlType="submit" loading={loading}>
-                            Сохранить
-                        </Button>
-                    </div>
+                    {/* Save button removed from here, controlled by parent */}
                 </div>
             </Form>
         </Card>
     );
-};
+});
 
 export default MessageEditor;

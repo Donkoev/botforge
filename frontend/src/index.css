@@ -381,10 +381,14 @@ input:-webkit-autofill:active {
 }
 
 /* Status Button Specifics */
-.bot-action-btn:hover .anticon-play-circle,
+.bot-action-btn:hover .anticon-play-circle {
+  color: #73d13d !important;
+  /* Brighter Green on hover */
+}
+
 .bot-action-btn:hover .anticon-pause-circle {
-  color: #6366f1 !important;
-  /* Primary color on hover */
+  color: #ff7875 !important;
+  /* Brighter Red on hover */
 }
 
 .bot-action-btn:hover .anticon-delete {

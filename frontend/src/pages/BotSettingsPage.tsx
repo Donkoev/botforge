@@ -1,10 +1,10 @@
 // frontend/src/pages/BotSettingsPage.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Form, Input, Switch, Card, message, Typography, Spin, Row, Col } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import { botsApi, Bot } from '../api/bots';
-import MessageEditor from '../components/MessageEditor';
+import MessageEditor, { MessageEditorRef } from '../components/MessageEditor';
 
 const { Title } = Typography;
 
@@ -19,6 +19,7 @@ const BotSettingsPage: React.FC = () => {
     const [bot, setBot] = useState<Bot | null>(null);
     const [loading, setLoading] = useState(true);
     const [form] = Form.useForm();
+    const messageEditorRef = useRef<MessageEditorRef>(null);
 
     const fetchBot = React.useCallback(async () => {
         if (!id) return;
@@ -48,9 +49,11 @@ const BotSettingsPage: React.FC = () => {
         fetchBot();
     }, [fetchBot]);
 
-    const handleSaveSettings = async (values: any) => {
+    const handleSaveAll = async () => {
         if (!bot) return;
         try {
+            const values = await form.validateFields();
+
             // 1. Update general settings (name)
             if (values.name !== bot.name) {
                 await botsApi.update(bot.id, { name: values.name });
@@ -65,11 +68,16 @@ const BotSettingsPage: React.FC = () => {
                 }
             }
 
-            message.success('Настройки сохранены');
+            // 3. Save Message Template
+            if (messageEditorRef.current) {
+                await messageEditorRef.current.save();
+            }
+
+            message.success('Все изменения сохранены');
             fetchBot(); // Refresh to get latest state
         } catch (error) {
             console.error(error);
-            message.error('Ошибка сохранения');
+            message.error('Ошибка сохранения. Проверьте все поля.');
         }
     };
 
@@ -78,19 +86,39 @@ const BotSettingsPage: React.FC = () => {
 
     return (
         <div>
-            <div style={{ marginBottom: 24 }}>
-                <Button
-                    type="text"
-                    icon={<ArrowLeftOutlined />}
-                    onClick={() => navigate('/bots')}
-                    style={{ marginBottom: 16, paddingLeft: 0, color: 'rgba(255,255,255,0.7)' }}
-                >
-                    Назад к списку
-                </Button>
+            <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
-                    <Title level={2} style={{ margin: 0, fontSize: 28 }}>Настройки: {bot.name}</Title>
-                    <Typography.Text type="secondary">Управление параметрами бота</Typography.Text>
+                    <Button
+                        type="text"
+                        icon={<ArrowLeftOutlined />}
+                        onClick={() => navigate('/bots')}
+                        style={{ marginBottom: 1, paddingLeft: 0, color: 'rgba(255,255,255,0.7)' }}
+                    >
+                        Назад к списку
+                    </Button>
+                    <div>
+                        <Title level={2} style={{ margin: 0, fontSize: 28 }}>Настройки: {bot.name}</Title>
+                        <Typography.Text type="secondary">Управление параметрами бота</Typography.Text>
+                    </div>
                 </div>
+
+                {/* Global Save Button */}
+                <Button
+                    type="primary"
+                    size="large"
+                    icon={<SaveOutlined />}
+                    onClick={handleSaveAll}
+                    style={{
+                        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                        border: 'none',
+                        boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.3)',
+                        height: 48,
+                        padding: '0 32px',
+                        fontSize: 16
+                    }}
+                >
+                    Сохранить всё
+                </Button>
             </div>
 
             <Card className="glass-card" bordered={false} style={{ marginBottom: 24, padding: 8 }}>
@@ -98,7 +126,6 @@ const BotSettingsPage: React.FC = () => {
                 <Form
                     form={form}
                     layout="vertical"
-                    onFinish={handleSaveSettings}
                 >
                     <Row gutter={[24, 24]}>
                         <Col xs={24} md={12}>
@@ -116,25 +143,10 @@ const BotSettingsPage: React.FC = () => {
                             </div>
                         </Col>
                     </Row>
-
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                            size="large"
-                            style={{
-                                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                                border: 'none',
-                                boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.3)'
-                            }}
-                        >
-                            Сохранить изменения
-                        </Button>
-                    </div>
                 </Form>
             </Card>
 
-            <MessageEditor botId={bot.id} />
+            <MessageEditor botId={bot.id} ref={messageEditorRef} />
         </div>
     );
 };
