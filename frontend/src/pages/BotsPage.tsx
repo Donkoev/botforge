@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Typography, Modal, Form, Input, message, Empty, Spin } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import { motion } from 'framer-motion';
 import BotCard from '../components/BotCard';
 import { botsApi, Bot } from '../api/bots';
 
@@ -145,21 +146,13 @@ const BotsPage: React.FC = () => {
         e.dataTransfer.dropEffect = 'move';
     };
 
-    const onDrop = async (e: React.DragEvent, index: number) => {
+    const onDrop = async (e: React.DragEvent) => {
         e.preventDefault();
-        onDragEnd(); // Ensure cleanup
+        onDragEnd();
 
-        if (draggedItem === null) return;
-        if (draggedItem === index) return;
-
-        const newBots = [...bots];
-        const [movedItem] = newBots.splice(draggedItem, 1);
-        newBots.splice(index, 0, movedItem);
-
-        setBots(newBots);
-
-        // Prepare update for backend
-        const reorderData = newBots.map((b, i) => ({ id: b.id, display_order: i }));
+        // Save new order to backend
+        // Note: 'bots' state is already updated live during drag
+        const reorderData = bots.map((b, i) => ({ id: b.id, display_order: i }));
         try {
             await botsApi.reorder(reorderData);
         } catch (error) {
@@ -245,10 +238,23 @@ const BotsPage: React.FC = () => {
                             key={bot.id}
                             xs={24} sm={24} md={12} lg={12} xl={8}
                             onDragOver={onDragOver}
-                            onDrop={(e) => onDrop(e, index)}
+                            onDrop={onDrop}
+                            onDragEnter={() => {
+                                // Swap logic for smooth reordering
+                                if (draggedItem !== null && draggedItem !== index) {
+                                    const newBots = [...bots];
+                                    const [movedItem] = newBots.splice(draggedItem, 1);
+                                    newBots.splice(index, 0, movedItem);
+                                    setBots(newBots);
+                                    setDraggedItem(index);
+                                }
+                            }}
                         >
-                            <div style={{ height: '100%', opacity: draggedItem === index ? 0.3 : 1, transition: 'opacity 0.2s' }}>
-                                {/* Dim the source item to indicate it's moving */}
+                            <motion.div
+                                layout
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                style={{ height: '100%', opacity: draggedItem === index ? 0 : 1 }} // Hide source
+                            >
                                 <BotCard
                                     bot={bot}
                                     onToggleStatus={handleToggleStatus}
@@ -256,11 +262,11 @@ const BotsPage: React.FC = () => {
                                     dragHandleProps={{
                                         draggable: true,
                                         onDragStart: (e: React.DragEvent) => onDragStart(e, index),
-                                        onDrag: onDrag, // Listen to drag update
+                                        onDrag: onDrag,
                                         onDragEnd: onDragEnd
                                     }}
                                 />
-                            </div>
+                            </motion.div>
                         </Col>
                     ))}
                 </Row>
