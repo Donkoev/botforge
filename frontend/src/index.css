@@ -436,3 +436,34 @@ input:-webkit-autofill:active {
   border-color: white;
   color: white;
 }
+
+/* Broadcast Detail Modal */
+.broadcast-detail-modal .ant-modal-content {
+  background: rgba(22, 22, 28, 0.95) !important;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6) !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.broadcast-detail-modal .ant-modal-header {
+  display: none !important;
+}
+
+.broadcast-detail-modal .ant-modal-body {
+  padding: 0 !important;
+}
+
+.broadcast-detail-modal .ant-modal-close {
+  top: 16px;
+  right: 16px;
+  color: rgba(255, 255, 255, 0.5) !important;
+  z-index: 10;
+}
+
+.broadcast-detail-modal .ant-modal-close:hover {
+  color: #fff !important;
+}
