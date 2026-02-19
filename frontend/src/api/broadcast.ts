@@ -6,6 +6,7 @@ export interface Broadcast {
     title: string;
     text: string;
     media_type: string | null;
+    media_file_id: string | null;
     buttons: any[];
     target_bots: number[];
     status: 'draft' | 'sending' | 'completed' | 'cancelled';
@@ -13,11 +14,17 @@ export interface Broadcast {
     sent_count: number;
     failed_count: number;
     created_at: string;
+    started_at: string | null;
+    completed_at: string | null;
 }
 
 export const broadcastApi = {
     getAll: async (): Promise<Broadcast[]> => {
         const response = await api.get<Broadcast[]>('/broadcasts/');
+        return response.data;
+    },
+    getOne: async (id: number): Promise<Broadcast> => {
+        const response = await api.get<Broadcast>(`/broadcasts/${id}`);
         return response.data;
     },
     create: async (data: any): Promise<Broadcast> => {
@@ -31,3 +38,4 @@ export const broadcastApi = {
         await api.post(`/broadcasts/${id}/cancel`);
     },
 };
+
