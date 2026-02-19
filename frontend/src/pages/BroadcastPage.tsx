@@ -322,22 +322,7 @@ const BroadcastPage: React.FC = () => {
 
                             {/* Stats */}
                             <SectionLabel>Статистика</SectionLabel>
-                            {bc.total_users > 0 ? (
-                                <div style={{ marginBottom: 20 }}>
-                                    <Progress
-                                        percent={percent}
-                                        strokeColor={bc.status === 'cancelled' ? '#ff4d4f' : { from: '#6366f1', to: '#8b5cf6' }}
-                                        trailColor="rgba(255,255,255,0.05)"
-                                        status={bc.status === 'cancelled' ? 'exception' : bc.status === 'completed' ? 'success' : 'active'}
-                                        style={{ marginBottom: 12 }}
-                                    />
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-                                        <StatCard value={bc.total_users} label="Всего" color="#fff" bg="rgba(255,255,255,0.03)" border="rgba(255,255,255,0.06)" />
-                                        <StatCard value={bc.sent_count} label="Отправлено" color="#52c41a" bg="rgba(82,196,26,0.05)" border="rgba(82,196,26,0.12)" />
-                                        <StatCard value={bc.failed_count} label="Ошибки" color="#ff4d4f" bg="rgba(255,77,79,0.05)" border="rgba(255,77,79,0.12)" />
-                                    </div>
-                                </div>
-                            ) : (
+                            {bc.status === 'draft' ? (
                                 <div style={{
                                     padding: 14,
                                     background: 'rgba(255,255,255,0.02)',
@@ -349,6 +334,28 @@ const BroadcastPage: React.FC = () => {
                                     marginBottom: 20,
                                 }}>
                                     Рассылка ещё не запускалась
+                                </div>
+                            ) : (
+                                <div style={{ marginBottom: 20 }}>
+                                    {bc.total_users > 0 && (
+                                        <Progress
+                                            percent={percent}
+                                            strokeColor={bc.status === 'cancelled' ? '#ff4d4f' : { from: '#6366f1', to: '#8b5cf6' }}
+                                            trailColor="rgba(255,255,255,0.05)"
+                                            status={bc.status === 'cancelled' ? 'exception' : bc.status === 'completed' ? 'success' : 'active'}
+                                            style={{ marginBottom: 12 }}
+                                        />
+                                    )}
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+                                        <StatCard value={bc.total_users} label="Всего" color="#fff" bg="rgba(255,255,255,0.03)" border="rgba(255,255,255,0.06)" />
+                                        <StatCard value={bc.sent_count} label="Отправлено" color="#52c41a" bg="rgba(82,196,26,0.05)" border="rgba(82,196,26,0.12)" />
+                                        <StatCard value={bc.failed_count} label="Ошибки" color="#ff4d4f" bg="rgba(255,77,79,0.05)" border="rgba(255,77,79,0.12)" />
+                                    </div>
+                                    {bc.total_users === 0 && bc.status !== 'sending' && (
+                                        <div style={{ marginTop: 8, textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: 12 }}>
+                                            Получатели не найдены
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
