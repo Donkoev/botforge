@@ -1,5 +1,5 @@
 // frontend/src/components/BotCard.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, Button, Tag, Typography, Tooltip } from 'antd';
 import {
     RobotOutlined,
@@ -23,6 +23,7 @@ interface BotCardProps {
 
 const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loading, dragHandleProps }) => {
     const navigate = useNavigate();
+    const [avatarError, setAvatarError] = useState(false);
 
     return (
         <Card
@@ -90,15 +91,30 @@ const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loadin
                 {/* Reduced paddingLeft slightly */}
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
                     <div style={{
-                        background: 'rgba(24, 144, 255, 0.1)',
-                        padding: 12,
+                        width: 48,
+                        height: 48,
                         borderRadius: 12,
+                        overflow: 'hidden',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        flexShrink: 0
+                        flexShrink: 0,
+                        background: avatarError ? 'rgba(24, 144, 255, 0.1)' : 'rgba(255,255,255,0.05)',
                     }}>
-                        <RobotOutlined style={{ fontSize: 24, color: '#1890ff' }} />
+                        {avatarError ? (
+                            <RobotOutlined style={{ fontSize: 24, color: '#1890ff' }} />
+                        ) : (
+                            <img
+                                src={`/api/bots/${bot.id}/avatar`}
+                                alt={bot.name}
+                                onError={() => setAvatarError(true)}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                }}
+                            />
+                        )}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
@@ -120,3 +136,4 @@ const BotCard: React.FC<BotCardProps> = ({ bot, onToggleStatus, onDelete, loadin
 };
 
 export default BotCard;
+

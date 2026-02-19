@@ -1,6 +1,10 @@
 # backend/app/api/bots.py
+import time
+import logging
 from typing import List
+from io import BytesIO
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from app.database import get_db
@@ -9,7 +13,13 @@ from app.schemas.bot import BotCreate, BotUpdate, BotResponse
 from app.api.auth import get_current_user
 from app.services.bot_manager import bot_manager
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/bots", tags=["bots"])
+
+# Simple in-memory avatar cache: {bot_id: (bytes, timestamp)}
+_avatar_cache: dict[int, tuple[bytes, float]] = {}
+_AVATAR_CACHE_TTL = 600  # 10 minutes
 
 @router.get("/", response_model=List[BotResponse])
 async def get_bots(
@@ -150,3 +160,53 @@ async def reorder_bots(
              )
     await db.commit()
     return {"status": "ok"}
+
+@router.get("/{id}/avatar")
+async def get_bot_avatar(
+    id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    """Proxy bot avatar from Telegram. Cached for 10 minutes."""
+    # Check cache
+    cached = _avatar_cache.get(id)
+    if cached and time.time() - cached[1] < _AVATAR_CACHE_TTL:
+        return StreamingResponse(BytesIO(cached[0]), media_type="image/jpeg")
+
+    result = await db.execute(select(Bot).where(Bot.id == id))
+    bot = result.scalar_one_or_none()
+    if not bot:
+        raise HTTPException(status_code=404, detail="Bot not found")
+
+    try:
+        from aiogram import Bot as AiogramBot
+        import httpx
+
+        temp_bot = AiogramBot(token=bot.token)
+        bot_info = await temp_bot.get_me()
+        photos = await temp_bot.get_user_profile_photos(bot_info.id, limit=1)
+
+        if photos.total_count == 0:
+            await temp_bot.session.close()
+            raise HTTPException(status_code=404, detail="Bot has no avatar")
+
+        # Get the largest size of the first photo
+        file_id = photos.photos[0][-1].file_id
+        file = await temp_bot.get_file(file_id)
+        file_url = f"https://api.telegram.org/file/bot{bot.token}/{file.file_path}"
+        await temp_bot.session.close()
+
+        # Download
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(file_url, timeout=10)
+            resp.raise_for_status()
+            avatar_bytes = resp.content
+
+        # Cache
+        _avatar_cache[id] = (avatar_bytes, time.time())
+
+        return StreamingResponse(BytesIO(avatar_bytes), media_type="image/jpeg")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to fetch avatar for bot {id}: {e}")
+        raise HTTPException(status_code=404, detail="Could not fetch avatar")
