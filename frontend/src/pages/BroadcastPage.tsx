@@ -236,7 +236,7 @@ const BroadcastPage: React.FC = () => {
                         <div style={{
                             background: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.06))',
                             borderBottom: '1px solid rgba(255,255,255,0.06)',
-                            padding: '24px 28px 18px',
+                            padding: '24px 48px 18px 28px',
                         }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div style={{ flex: 1, minWidth: 0 }}>

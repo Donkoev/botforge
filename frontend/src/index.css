@@ -458,12 +458,21 @@ input:-webkit-autofill:active {
 }
 
 .broadcast-detail-modal .ant-modal-close {
-  top: 16px;
-  right: 16px;
-  color: rgba(255, 255, 255, 0.5) !important;
+  top: 10px;
+  right: 10px;
+  color: rgba(255, 255, 255, 0.4) !important;
   z-index: 10;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .broadcast-detail-modal .ant-modal-close:hover {
   color: #fff !important;
+  background: rgba(255, 255, 255, 0.12);
 }
